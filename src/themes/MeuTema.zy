@@ -1,0 +1,121 @@
+design MeuTema {
+    // Minhas cores personalizadas
+    colors {
+        // Cor principal - um roxo moderno
+        primary: #6200ee {
+            light: 15%;     // Variação mais clara
+            dark: 25%;      // Variação mais escura
+            alpha: 0.1;     // Para transparências
+        }
+        
+        // Cores de destaque
+        highlight: #03dac6 {
+            glow: true;    // Adiciona efeito de brilho
+        }
+        
+        // Minhas cores personalizadas
+        brand: {
+            blue: #1a73e8;
+            green: #34a853;
+            yellow: #fbbc04;
+            red: #ea4335;
+        }
+    }
+
+    // Meu sistema de espaçamento
+    spacing {
+        // Usando uma escala personalizada
+        xs: 4px;
+        sm: 8px;
+        md: 16px;
+        lg: 24px;
+        xl: 32px;
+        
+        // Espaçamentos específicos
+        header: 48px;
+        section: 64px;
+    }
+
+    // Minhas fontes
+    typography {
+        // Fonte principal
+        main: "Poppins" {
+            weights: [300, 400, 600];
+            sizes: {
+                small: 14px;
+                normal: 16px;
+                large: 20px;
+                title: 32px;
+            }
+        }
+        
+        // Fonte para código
+        code: "Fira Code" {
+            features: ["liga"];  // Liga as ligaduras
+        }
+    }
+
+    // Meus efeitos
+    effects {
+        // Sombras personalizadas
+        shadows {
+            soft: {
+                y: 2px;
+                blur: 8px;
+                color: #0001;
+            }
+            
+            pop: {
+                y: 8px;
+                blur: 16px;
+                color: #0002;
+            }
+        }
+        
+        // Gradientes
+        gradients {
+            primary: {
+                from: colors.primary;
+                to: colors.highlight;
+                angle: 45deg;
+            }
+        }
+    }
+
+    // Meus componentes personalizados
+    components {
+        // Botão personalizado
+        CoolButton {
+            base: {
+                padding: [spacing.sm, spacing.md];
+                font: typography.main.normal;
+                radius: 8px;
+                shadow: effects.shadows.soft;
+                transition: all 0.2s;
+            }
+            
+            hover: {
+                shadow: effects.shadows.pop;
+                transform: translateY(-2px);
+            }
+            
+            variants: {
+                gradient: {
+                    background: effects.gradients.primary;
+                    color: white;
+                }
+            }
+        }
+
+        // Card personalizado
+        GlassCard {
+            base: {
+                background: white(0.1);
+                backdrop: blur(10px);
+                border: 1px solid white(0.2);
+                radius: 16px;
+                padding: spacing.lg;
+            }
+        }
+    }
+} 

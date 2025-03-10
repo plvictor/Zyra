@@ -1,0 +1,408 @@
+// Componente de sala de chat
+import MessageList from "./MessageList";
+import MessageInput from "./MessageInput";
+import UserList from "./UserList";
+
+component ChatRoom {
+  // Propriedades
+  prop user;
+  prop onLogout;
+  
+  // Estados
+  @sync
+  state sharedState = {
+    users: [],
+    messages: []
+  };
+  state isLoadingMessages = true;
+  
+  // Lifecycle hooks
+  onMount() {
+    // Carregar mensagens anteriores
+    loadMessages();
+    
+    // Carregar usuários online
+    loadUsers();
+    
+    // Configurar listeners de eventos
+    listen("newMessage", handleNewMessage);
+    listen("userJoined", handleUserJoined);
+    listen("userLeft", handleUserLeft);
+  }
+  
+  onUnmount() {
+    // Remover listeners
+    unlisten("newMessage");
+    unlisten("userJoined");
+    unlisten("userLeft");
+  }
+  
+  // Funções
+  async function loadMessages() {
+    isLoadingMessages = true;
+    
+    try {
+      let response = await fetch("/api/messages?limit=50");
+      sharedState.messages = response.data.reverse();
+    } catch (error) {
+      console.error("Erro ao carregar mensagens:", error);
+    } finally {
+      isLoadingMessages = false;
+    }
+  }
+  
+  async function loadUsers() {
+    try {
+      let response = await fetch("/api/users?online=true");
+      sharedState.users = response.data;
+    } catch (error) {
+      console.error("Erro ao carregar usuários:", error);
+    }
+  }
+  
+  function handleNewMessage(message) {
+    // Adicionar nova mensagem ao estado
+    sharedState.messages = [...sharedState.messages, message];
+    
+    // Rolar para o final da lista
+    scrollToBottom();
+  }
+  
+  function handleUserJoined(userData) {
+    // Verificar se o usuário já está na lista
+    let exists = sharedState.users.some(u => u.username === userData.username);
+    
+    if (!exists) {
+      sharedState.users = [...sharedState.users, userData];
+    }
+  }
+  
+  function handleUserLeft(userData) {
+    // Remover usuário da lista
+    sharedState.users = sharedState.users.filter(u => u.username !== userData.username);
+  }
+  
+  function handleSendMessage(content) {
+    // Enviar mensagem para o servidor
+    sendMessage("sendMessage", {
+      content: content
+    });
+  }
+  
+  function scrollToBottom() {
+    // Esta função seria implementada no runtime para rolar a lista
+    // de mensagens para o final
+  }
+  
+  // Renderização
+  render {
+    container {
+      layout: row;
+      width: 100%;
+      height: 100%;
+      
+      // Painel lateral com usuários online
+      container {
+        width: 250;
+        height: 100%;
+        background: "#f5f7fa";
+        borderRight: [1, "solid", "#e0e0e0"];
+        layout: column;
+        
+        // Cabeçalho com informações do usuário atual
+        container {
+          padding: 15;
+          borderBottom: [1, "solid", "#e0e0e0"];
+          layout: row;
+          align: center;
+          spacing: 10;
+          
+          // Avatar do usuário
+          image $user.avatarUrl {
+            width: 40;
+            height: 40;
+            borderRadius: 20;
+          }
+          
+          // Nome do usuário
+          text $user.username {
+            weight: bold;
+            flex: 1;
+          }
+          
+          // Botão de sair
+          button "Sair" {
+            onClick: onLogout();
+            style: secondary;
+            size: small;
+          }
+        }
+        
+        // Lista de usuários online
+        UserList {
+          users: $sharedState.users;
+        }
+      }
+      
+      // Área principal de chat
+      container {
+        flex: 1;
+        height: 100%;
+        layout: column;
+        
+        // Lista de mensagens
+        container {
+          flex: 1;
+          overflow: "auto";
+          padding: 20;
+          
+          if ($isLoadingMessages) {
+            // Indicador de carregamento
+            container {
+              layout: column;
+              align: center;
+              justify: center;
+              height: 100%;
+              
+              spinner {
+                size: large;
+                color: primary;
+              }
+              
+              text "Carregando mensagens..." {
+                margin: [10, 0, 0, 0];
+                color: secondary;
+              }
+            }
+          } else {
+            // Lista de mensagens
+            MessageList {
+              messages: $sharedState.messages;
+              currentUser: $user;
+            }
+          }
+        }
+        
+        // Campo de entrada de mensagem
+        MessageInput {
+          onSend: handleSendMessage;
+        }
+      }
+    }
+  }
+}
+
+export default ChatRoom; 
+
+// Cache automático de queries
+@cache(ttl: "5m")
+async function getUsers() {
+  // Query builder tipado
+  let users = await db.User
+    .where(user => user.age > 18)
+    .include("posts")
+    .orderBy("name")
+    .limit(10);
+
+  // users é tipado como User[]
+  return users;
+}
+
+// Cache de componentes
+@memo
+component ExpensiveComponent {
+  // Só rerenderiza quando props mudam
+}
+
+// Virtualização automática
+@virtualize
+component LongList {
+  prop items: any[];
+  
+  render {
+    list {
+      for (item in items) {
+        // Só renderiza itens visíveis
+        listItem item;
+      }
+    }
+  }
+} 
+
+test "UserComponent" {
+  // Renderizar componente
+  let component = render(UserComponent);
+  
+  // Simular eventos
+  component.button("Save").click();
+  
+  // Assertions
+  expect(component).toHaveText("Saved!");
+  expect(db.User).toHaveLength(1);
+} 
+
+// Pontos de depuração
+@debug
+function complexCalculation() {
+  // Inspetor de estado automático
+  debugger;
+} 
+
+// Preserva estado durante recarregamento
+@preserveState
+component StatefulComponent {
+  state count = 0;
+} 
+
+validator UserInput {
+  name: {
+    required: true,
+    minLength: 2
+  },
+  email: {
+    required: true,
+    email: true,
+    unique: "User.email"
+  }
+} 
+
+@auth
+route("/admin") {
+  // Requer autenticação
+  @requireRole("admin")
+  function deleteUser(id: uuid) {
+    // ...
+  }
+} 
+
+component Card {
+  // Slots nomeados
+  slot header;
+  slot content;
+  slot footer;
+  
+  render {
+    container {
+      // Renderizar slots
+      render slot.header;
+      render slot.content;
+      render slot.footer;
+    }
+  }
+}
+
+// Usar componente
+Card {
+  header {
+    heading "Título";
+  }
+  content {
+    text "Conteúdo";
+  }
+  footer {
+    button "OK";
+  }
+} 
+
+component Counter {
+  // Estado reativo
+  @reactive
+  state count = 0;
+  
+  // Efeitos automáticos
+  effect(count) {
+    // Executado quando count muda
+    saveToLocalStorage("count", count);
+  }
+  
+  // Computed properties
+  computed isEven() {
+    return count % 2 === 0;
+  }
+} 
+
+// Imagens responsivas automáticas
+image "photo.jpg" {
+  responsive: true;
+  sizes: [400, 800, 1200];
+  formats: ["webp", "jpg"];
+} 
+
+model User {
+  id: uuid primary;
+  posts: relation<Post> one-to-many;
+  
+  // Validações nativas
+  validate email matches /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+  
+  // Hooks
+  beforeCreate() {
+    this.password = hash(this.password);
+  }
+} 
+
+// Apenas o código necessário é incluído no bundle
+@lazy
+import AdminPanel from "./admin";
+
+// Código dividido automaticamente
+route("/admin", () => import("./admin")); 
+
+channel ChatChannel<T> {
+  // Eventos tipados
+  event message(content: T);
+  event typing(user: User);
+  event seen(messageId: uuid);
+}
+
+// Usar canal
+let chat = new ChatChannel<string>();
+chat.on("message", (content) => {
+  // content é tipado como string
+}); 
+
+theme DarkMode {
+  colors {
+    primary: "#2196f3";
+    background: "#121212";
+    // Variantes automáticas
+    primary-light: lighten($primary, 20%);
+    primary-dark: darken($primary, 20%);
+  }
+  
+  // Transições automáticas
+  transitions {
+    theme: 300ms ease;
+  }
+} 
+
+container {
+  responsive {
+    mobile {
+      layout: column;
+      width: 100%;
+    }
+    tablet {
+      layout: row;
+      width: 50%;
+    }
+    desktop {
+      layout: grid(3);
+      width: 33.33%;
+    }
+  }
+} 
+
+type Status = "online" | "offline" | "away";
+
+match (userStatus) {
+  "online" => showGreenDot(),
+  "offline" => showGrayDot(),
+  "away" => showYellowDot()
+} 
+
+// Definição de tipo genérico
+type Result<T, E> = Success<T> | Error<E>;
+
+// Inferência automática de tipos
+let resultado = Result.success(42); // Result<number, never> 

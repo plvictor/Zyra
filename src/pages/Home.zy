@@ -1,0 +1,161 @@
+component HomePage {
+  // Estado
+  state loading = false;
+  state message = "";
+  
+  // Lifecycle
+  onMount() {
+    loadMessage();
+  }
+  
+  // Funções
+  async function loadMessage() {
+    loading = true;
+    try {
+      let response = await fetch("/api/hello");
+      let data = await response.json();
+      message = data.message;
+    } catch (error) {
+      console.error("Erro:", error);
+    } finally {
+      loading = false;
+    }
+  }
+  
+  // Renderização
+  render {
+    container {
+      // Cabeçalho
+      header {
+        layout: row;
+        padding: 20;
+        background: $theme.colors.primary;
+        justify: "space-between";
+        align: "center";
+        
+        heading "Meu Site" {
+          color: white;
+          size: "xlarge";
+        }
+        
+        // Menu de navegação
+        nav {
+          layout: row;
+          spacing: 20;
+          
+          link "Início" { 
+            href: "/";
+            color: white;
+          }
+          link "Sobre" { 
+            href: "/sobre";
+            color: white;
+          }
+          link "Contato" { 
+            href: "/contato";
+            color: white;
+          }
+        }
+      }
+      
+      // Conteúdo principal
+      main {
+        padding: 40;
+        maxWidth: 1200;
+        margin: [0, "auto"];
+        
+        // Seção de boas-vindas
+        section {
+          text-align: center;
+          margin: [0, 0, 60, 0];
+          
+          heading "Bem-vindo ao Meu Site" {
+            size: "title";
+            margin: [0, 0, 20, 0];
+          }
+          
+          text "Este é um site moderno criado com Zyra!" {
+            size: "large";
+            color: "secondary";
+          }
+          
+          // Mensagem do servidor
+          if ($loading) {
+            spinner {
+              size: "large";
+              color: "primary";
+              margin: [20, 0];
+            }
+          } else if ($message) {
+            text $message {
+              size: "large";
+              color: "primary";
+              margin: [20, 0];
+            }
+          }
+        }
+        
+        // Grade de recursos
+        grid {
+          columns: [1, 2, 3]; // Responsivo
+          gap: 30;
+          margin: [40, 0];
+          
+          // Cards de recursos
+          card {
+            padding: 30;
+            background: white;
+            shadow: "medium";
+            borderRadius: 10;
+            
+            heading "Design Moderno" {
+              size: "large";
+              margin: [0, 0, 15, 0];
+            }
+            
+            text "Interface limpa e responsiva com foco na experiência do usuário.";
+          }
+          
+          card {
+            padding: 30;
+            background: white;
+            shadow: "medium";
+            borderRadius: 10;
+            
+            heading "Tempo Real" {
+              size: "large";
+              margin: [0, 0, 15, 0];
+            }
+            
+            text "Comunicação instantânea entre cliente e servidor com WebSockets.";
+          }
+          
+          card {
+            padding: 30;
+            background: white;
+            shadow: "medium";
+            borderRadius: 10;
+            
+            heading "Performance" {
+              size: "large";
+              margin: [0, 0, 15, 0];
+            }
+            
+            text "Otimizado para máxima velocidade e eficiência.";
+          }
+        }
+      }
+      
+      // Rodapé
+      footer {
+        padding: 40;
+        background: "#f5f5f5";
+        text-align: center;
+        
+        text "© 2024 Meu Site. Todos os direitos reservados." {
+          color: "secondary";
+        }
+      }
+    }
+  }
+} 

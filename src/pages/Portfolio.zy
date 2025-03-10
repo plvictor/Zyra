@@ -1,0 +1,344 @@
+page Portfolio {
+    // Estado
+    state darkMode = false;
+    state activeSection = "home";
+    state projects = [
+        {
+            title: "Projeto 1",
+            desc: "Uma descrição incrível do projeto 1",
+            image: "/project1.jpg",
+            tech: ["React", "Node.js", "MongoDB"]
+        },
+        {
+            title: "Projeto 2",
+            desc: "Uma descrição incrível do projeto 2",
+            image: "/project2.jpg",
+            tech: ["Vue", "Express", "PostgreSQL"]
+        }
+    ];
+    state skills = [
+        { name: "Frontend", level: 90 },
+        { name: "Backend", level: 85 },
+        { name: "Design", level: 75 },
+        { name: "DevOps", level: 70 }
+    ];
+
+    // Métodos
+    function toggleTheme() {
+        darkMode = !darkMode;
+    }
+
+    function setActiveSection(section) {
+        activeSection = section;
+    }
+
+    // Renderização
+    render {
+        App {
+            theme: darkMode ? "dark" : "light";
+            background: $theme.background;
+            color: $theme.text;
+            transition: all 0.3s;
+
+            // Cabeçalho
+            Header {
+                layout: row;
+                justify: space-between;
+                align: center;
+                padding: 20;
+                position: fixed;
+                width: 100%;
+                backdrop: blur(10px);
+                z: 1000;
+
+                Logo {
+                    font: title;
+                    color: $theme.primary;
+                    text: "< Dev />";
+                }
+
+                Nav {
+                    layout: row;
+                    gap: 32;
+
+                    ["Home", "Projetos", "Habilidades", "Contato"].map(section =>
+                        Link section {
+                            color: activeSection == section.toLowerCase() 
+                                ? $theme.primary 
+                                : $theme.text;
+                            onClick: () => setActiveSection(section.toLowerCase());
+                            hover: {
+                                color: $theme.primary;
+                                transform: translateY(-2px);
+                            }
+                        }
+                    )
+                }
+
+                ThemeToggle {
+                    icon: darkMode ? "sun" : "moon";
+                    onClick: toggleTheme;
+                    hover: {
+                        rotate: 180deg;
+                    }
+                }
+            }
+
+            // Seção principal
+            Main {
+                padding: [100, 20, 20, 20];
+                layout: stack;
+                gap: 100;
+
+                // Hero
+                Hero {
+                    layout: row;
+                    align: center;
+                    justify: center;
+                    gap: 50;
+                    height: calc(100vh - 100px);
+
+                    Content {
+                        layout: stack;
+                        gap: 24;
+                        max-width: 600;
+
+                        Title {
+                            font: {
+                                size: 48;
+                                weight: bold;
+                            }
+                            text: "Olá, eu sou um Desenvolvedor Full Stack";
+                            animate: slideIn;
+                        }
+
+                        Text {
+                            font: large;
+                            color: $theme.textSecondary;
+                            text: "Transformando ideias em experiências digitais incríveis";
+                            animate: slideIn;
+                            delay: 0.2s;
+                        }
+
+                        Actions {
+                            layout: row;
+                            gap: 16;
+                            animate: slideIn;
+                            delay: 0.4s;
+
+                            Button "Ver Projetos" {
+                                variant: primary;
+                                onClick: () => setActiveSection("projetos");
+                            }
+
+                            Button "Contato" {
+                                variant: outline;
+                                onClick: () => setActiveSection("contato");
+                            }
+                        }
+                    }
+
+                    Image {
+                        src: "/hero-image.svg";
+                        width: 500;
+                        animate: float;
+                        duration: infinite;
+                    }
+                }
+
+                // Projetos
+                Projects {
+                    layout: stack;
+                    gap: 48;
+                    id: "projetos";
+
+                    SectionTitle "Projetos" {
+                        align: center;
+                        animate: fadeIn;
+                    }
+
+                    Grid {
+                        columns: auto-fit(350px);
+                        gap: 32;
+
+                        for (project in projects) {
+                            ProjectCard {
+                                layout: stack;
+                                background: $theme.surface;
+                                radius: 16;
+                                overflow: hidden;
+                                animate: slideUp;
+                                shadow: medium;
+
+                                hover: {
+                                    transform: translateY(-8px);
+                                    shadow: large;
+                                }
+
+                                Image {
+                                    src: project.image;
+                                    aspect: 16/9;
+                                    fit: cover;
+                                }
+
+                                Content {
+                                    padding: 24;
+                                    layout: stack;
+                                    gap: 16;
+
+                                    Title project.title {
+                                        font: large;
+                                        weight: bold;
+                                    }
+
+                                    Text project.desc {
+                                        color: $theme.textSecondary;
+                                    }
+
+                                    Tags {
+                                        layout: row;
+                                        gap: 8;
+                                        wrap: true;
+
+                                        for (tech in project.tech) {
+                                            Tag tech {
+                                                background: $theme.primaryLight;
+                                                color: $theme.primary;
+                                                padding: [4, 12];
+                                                radius: 100;
+                                                size: 14;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Habilidades
+                Skills {
+                    layout: stack;
+                    gap: 48;
+                    id: "habilidades";
+
+                    SectionTitle "Habilidades" {
+                        align: center;
+                        animate: fadeIn;
+                    }
+
+                    Grid {
+                        columns: 2;
+                        gap: 32;
+
+                        for (skill in skills) {
+                            SkillCard {
+                                layout: stack;
+                                gap: 16;
+                                padding: 24;
+                                background: $theme.surface;
+                                radius: 16;
+                                animate: slideUp;
+
+                                Title skill.name {
+                                    font: large;
+                                    weight: bold;
+                                }
+
+                                ProgressBar {
+                                    height: 8;
+                                    radius: 4;
+                                    background: $theme.surfaceHover;
+
+                                    Fill {
+                                        width: "${skill.level}%";
+                                        background: $theme.primary;
+                                        radius: inherit;
+                                        animate: {
+                                            type: width;
+                                            from: "0%";
+                                            to: "${skill.level}%";
+                                            duration: 1s;
+                                            ease: spring;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Contato
+                Contact {
+                    layout: stack;
+                    gap: 48;
+                    id: "contato";
+
+                    SectionTitle "Contato" {
+                        align: center;
+                        animate: fadeIn;
+                    }
+
+                    Form {
+                        layout: stack;
+                        gap: 24;
+                        max-width: 600;
+                        margin: center;
+
+                        Input {
+                            placeholder: "Seu nome";
+                            required: true;
+                        }
+
+                        Input {
+                            type: "email";
+                            placeholder: "Seu email";
+                            required: true;
+                        }
+
+                        Textarea {
+                            placeholder: "Sua mensagem";
+                            rows: 5;
+                            required: true;
+                        }
+
+                        Button "Enviar Mensagem" {
+                            variant: primary;
+                            width: full;
+                        }
+                    }
+                }
+            }
+
+            // Rodapé
+            Footer {
+                layout: row;
+                justify: space-between;
+                align: center;
+                padding: [32, 20];
+                background: $theme.surface;
+
+                Text "© 2024 - Desenvolvido com Zyra" {
+                    color: $theme.textSecondary;
+                }
+
+                Social {
+                    layout: row;
+                    gap: 16;
+
+                    ["github", "linkedin", "twitter"].map(network =>
+                        Link {
+                            href: `https://${network}.com/seuusuario`;
+                            icon: network;
+                            color: $theme.textSecondary;
+                            hover: {
+                                color: $theme.primary;
+                                transform: translateY(-2px);
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+} 

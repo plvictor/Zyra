@@ -1,0 +1,91 @@
+// Importar tema e componentes
+import { MainTheme } from "./themes/MainTheme";
+import { HomePage } from "./pages/Home";
+import { Portfolio } from "./pages/Portfolio";
+import { PortfolioTheme } from "./themes/PortfolioTheme";
+
+// Configuração da aplicação
+app {
+  title: "Meu Site";
+  theme: MainTheme;
+  
+  // Rotas
+  routes {
+    "/": HomePage
+  }
+}
+
+// Configuração do servidor
+server {
+  port: 3000;
+  
+  // WebSocket handlers
+  socket {
+    on("connect", client) {
+      console.log("Cliente conectado:", client.id);
+      
+      client.on("disconnect", () => {
+        console.log("Cliente desconectado:", client.id);
+      });
+    }
+  }
+  
+  // APIs
+  api {
+    "/api/contact" {
+      method: "POST";
+      handler(req, res) {
+        const { name, email, message } = req.body;
+        // Aqui você implementaria o envio do email
+        return { success: true };
+      }
+    }
+  }
+}
+
+// Configuração da aplicação
+app {
+    title: "Meu Portfólio";
+    theme: PortfolioTheme;
+    
+    // Rotas
+    routes {
+        "/": Portfolio;
+    }
+    
+    // Configurações globais
+    config {
+        animations: true;
+        darkMode: {
+            initial: "system";  // Usa preferência do sistema
+            persist: true;      // Salva preferência
+        }
+        responsive: {
+            breakpoints: [
+                mobile: 640,
+                tablet: 768,
+                desktop: 1024,
+                wide: 1280
+            ]
+        }
+    }
+    
+    // Manipuladores globais
+    handlers {
+        onError(error) {
+            console.error("Erro na aplicação:", error);
+            notify({
+                type: "error",
+                message: "Ocorreu um erro inesperado"
+            });
+        }
+        
+        onThemeChange(theme) {
+            document.documentElement.className = theme;
+        }
+        
+        onRouteChange(route) {
+            analytics.pageView(route);
+        }
+    }
+} 

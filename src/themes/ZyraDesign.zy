@@ -1,0 +1,234 @@
+design ZyraDesign {
+    // Sistema de cores com gradientes automáticos
+    colors {
+        primary: #2196f3 {
+            auto-gradient: true; // Gera automaticamente variações
+            light: 20%;         // Mais claro
+            dark: 20%;          // Mais escuro
+            alpha: 0.1;         // Transparência
+        }
+        
+        accent: #ff4081 {
+            auto-gradient: true;
+            vibrance: +10%;     // Aumenta saturação
+        }
+        
+        // Paleta semântica
+        success: #4caf50 -> gradient(light: 10%, dark: 20%);
+        warning: #ff9800 -> gradient(warm: true);
+        error: #f44336 -> gradient(vibrant: true);
+        
+        // Sistema de tons neutros
+        neutral {
+            base: #757575;
+            scale: 10;          // Gera 10 tons automaticamente
+            distribution: linear;
+        }
+    }
+
+    // Sistema de Espaçamento Inteligente
+    spacing {
+        base: 8px;
+        scale: fibonacci;   // Usa sequência fibonacci para escala
+        
+        // Presets contextuais
+        compact: base * 0.5;
+        regular: base;
+        relaxed: base * 1.5;
+        
+        // Espaçamento responsivo
+        responsive {
+            mobile: 0.8;    // Multiplica por 0.8 em mobile
+            tablet: 1;
+            desktop: 1.2;
+        }
+    }
+
+    // Sistema de Tipografia Avançado
+    typography {
+        // Escala modular
+        scale {
+            base: 16px;
+            ratio: 1.25;    // Escala de tipo Perfect Fourth
+            levels: 6;      // h1 até h6
+        }
+        
+        // Famílias de fonte com fallbacks inteligentes
+        families {
+            primary: "Inter" {
+                weights: [300, 400, 500, 700];
+                fallback: system-ui;
+                features: ["liga", "kern", "ss01"];
+            }
+            
+            code: "JetBrains Mono" {
+                weights: [400, 700];
+                features: ["zero", "ss01"];
+            }
+        }
+        
+        // Presets de texto
+        presets {
+            title: {
+                family: primary;
+                size: scale(1);
+                weight: 700;
+                letterSpacing: -0.02em;
+            }
+            
+            body: {
+                family: primary;
+                size: scale(0);
+                weight: 400;
+                lineHeight: 1.5;
+            }
+        }
+    }
+
+    // Sistema de Animação
+    animations {
+        // Curvas de tempo predefinidas
+        curves {
+            bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            sharp: cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        
+        // Durações contextuais
+        duration {
+            instant: 100ms;
+            quick: 200ms;
+            normal: 300ms;
+            slow: 500ms;
+        }
+        
+        // Presets de animação
+        presets {
+            fadeIn: {
+                properties: [opacity];
+                from: 0;
+                to: 1;
+                curve: smooth;
+                duration: quick;
+            }
+            
+            slideUp: {
+                properties: [transform, opacity];
+                from: {
+                    transform: translateY(20px);
+                    opacity: 0;
+                }
+                to: {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                curve: bounce;
+                duration: normal;
+            }
+        }
+    }
+
+    // Sistema de Layout
+    layout {
+        // Grid inteligente
+        grid {
+            columns: 12;
+            gap: spacing.regular;
+            breakpoints: [480px, 768px, 1024px, 1280px];
+            
+            // Containers responsivos
+            containers {
+                small: 95% -> max(640px);
+                medium: 90% -> max(1024px);
+                large: 85% -> max(1280px);
+            }
+        }
+        
+        // Flex presets
+        flex {
+            center: {
+                justify: center;
+                align: center;
+            }
+            
+            spread: {
+                justify: space-between;
+                align: center;
+            }
+            
+            stack: {
+                direction: column;
+                gap: spacing.regular;
+            }
+        }
+    }
+
+    // Componentes Base
+    components {
+        Button {
+            base: {
+                padding: spacing.regular;
+                radius: 8px;
+                font: typography.presets.body;
+                transition: all animations.duration.quick animations.curves.smooth;
+            }
+            
+            variants {
+                primary: {
+                    background: colors.primary;
+                    color: #fff;
+                    
+                    hover: {
+                        background: colors.primary.dark;
+                        transform: scale(1.02);
+                    }
+                    
+                    active: {
+                        transform: scale(0.98);
+                    }
+                }
+                
+                ghost: {
+                    background: transparent;
+                    color: colors.primary;
+                    border: 1px solid colors.primary;
+                    
+                    hover: {
+                        background: colors.primary.alpha;
+                    }
+                }
+            }
+            
+            sizes {
+                small: {
+                    padding: spacing.compact;
+                    font-size: 14px;
+                }
+                
+                large: {
+                    padding: spacing.relaxed;
+                    font-size: 18px;
+                }
+            }
+        }
+        
+        Card {
+            base: {
+                background: #fff;
+                radius: 12px;
+                shadow: {
+                    color: colors.neutral.alpha(0.1);
+                    blur: 10px;
+                    spread: 0;
+                    y: 4px;
+                }
+                animation: animations.presets.fadeIn;
+            }
+            
+            hover: {
+                transform: translateY(-4px);
+                shadow.y: 8px;
+            }
+        }
+    }
+} 

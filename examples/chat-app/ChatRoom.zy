@@ -1,0 +1,215 @@
+// Componente de sala de chat
+component ChatRoom {
+    // Estado do componente
+    state messages = [];
+    state currentMessage = "";
+    state users = [];
+    state theme = {
+        primary: #2196f3,
+        background: #f5f5f5,
+        text: #333333
+    };
+
+    // Configuração do socket
+    socket {
+        on "connect" {
+            console.log("Conectado ao servidor!");
+        }
+
+        on "message" (data) {
+            messages.push({
+                id: data.id,
+                text: data.text,
+                user: data.user,
+                time: new Date()
+            });
+        }
+
+        on "userJoined" (user) {
+            users.push(user);
+            notify("${user.name} entrou na sala");
+        }
+
+        on "userLeft" (user) {
+            users = users.filter(u => u.id !== user.id);
+            notify("${user.name} saiu da sala");
+        }
+    }
+
+    // Métodos
+    function sendMessage() {
+        if (currentMessage.trim()) {
+            socket.emit("message", {
+                text: currentMessage,
+                user: currentUser
+            });
+            currentMessage = "";
+        }
+    }
+
+    function notify(message) {
+        messages.push({
+            id: Date.now(),
+            text: message,
+            type: "notification"
+        });
+    }
+
+    // Renderização
+    render {
+        ChatContainer {
+            layout: grid(12);
+            height: 100vh;
+            background: $theme.background;
+
+            // Lista de usuários
+            Sidebar {
+                grid: span(3);
+                background: darken($theme.background, 5%);
+                padding: 20;
+
+                Title "Usuários Online" {
+                    color: $theme.primary;
+                    size: 20;
+                    weight: bold;
+                }
+
+                UserList {
+                    layout: stack;
+                    gap: 10;
+
+                    for (user in users) {
+                        UserItem {
+                            layout: row;
+                            align: center;
+                            gap: 10;
+
+                            Avatar {
+                                size: 32;
+                                background: $theme.primary;
+                                text: user.name[0];
+                            }
+
+                            Text user.name {
+                                color: $theme.text;
+                            }
+
+                            Status {
+                                size: 8;
+                                shape: circle;
+                                color: user.online ? green : gray;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Área de mensagens
+            ChatArea {
+                grid: span(9);
+                layout: stack;
+                padding: 20;
+
+                // Lista de mensagens
+                MessageList {
+                    layout: stack;
+                    gap: 16;
+                    overflow: scroll;
+                    grow: 1;
+
+                    for (message in messages) {
+                        if (message.type == "notification") {
+                            Notification {
+                                text: message.text;
+                                color: gray;
+                                align: center;
+                                animate: fadeIn;
+                            }
+                        } else {
+                            Message {
+                                layout: row;
+                                gap: 12;
+                                align: message.user.id == currentUser.id ? "end" : "start";
+                                animate: slideIn;
+
+                                Avatar {
+                                    size: 40;
+                                    background: $theme.primary;
+                                    text: message.user.name[0];
+                                }
+
+                                Content {
+                                    layout: stack;
+                                    gap: 4;
+                                    max-width: 70%;
+
+                                    Bubble {
+                                        background: message.user.id == currentUser.id 
+                                            ? $theme.primary 
+                                            : white;
+                                        color: message.user.id == currentUser.id 
+                                            ? white 
+                                            : $theme.text;
+                                        padding: [8, 16];
+                                        radius: 16;
+                                        shadow: soft;
+
+                                        Text message.text;
+                                    }
+
+                                    Info {
+                                        layout: row;
+                                        gap: 8;
+                                        size: 12;
+                                        color: gray;
+
+                                        Text message.user.name;
+                                        Text "•";
+                                        Text format(message.time, "HH:mm");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Área de input
+                InputArea {
+                    layout: row;
+                    gap: 16;
+                    padding: 20;
+                    background: white;
+                    shadow: up;
+
+                    Input {
+                        grow: 1;
+                        value: $currentMessage;
+                        placeholder: "Digite sua mensagem...";
+                        onEnter: sendMessage;
+                        
+                        focus {
+                            border: none;
+                            outline: $theme.primary;
+                        }
+                    }
+
+                    Button {
+                        icon: "send";
+                        color: white;
+                        background: $theme.primary;
+                        onClick: sendMessage;
+                        
+                        hover {
+                            scale: 1.05;
+                            background: lighten($theme.primary, 10%);
+                        }
+                        
+                        active {
+                            scale: 0.95;
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

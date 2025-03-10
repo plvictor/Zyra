@@ -1,0 +1,196 @@
+import { ZyraDesign } from "@/themes/ZyraDesign";
+
+component TodoApp {
+    // Estado
+    state todos = [];
+    state newTodo = "";
+    state filter = "all";
+
+    // Lifecycle
+    onMount {
+        animate: slideUp;
+        load: localStorage.todos;
+    }
+
+    // Métodos
+    function addTodo() {
+        if (newTodo.trim()) {
+            todos.push({
+                id: Date.now(),
+                text: newTodo,
+                completed: false,
+                animate: animations.presets.slideUp
+            });
+            newTodo = "";
+            save: localStorage.todos;
+        }
+    }
+
+    function toggleTodo(id) {
+        todos = todos.map(todo =>
+            todo.id === id
+                ? { ...todo, completed: !todo.completed }
+                : todo
+        );
+        save: localStorage.todos;
+    }
+
+    function deleteTodo(id) {
+        todos = todos.filter(todo => todo.id !== id);
+        save: localStorage.todos;
+    }
+
+    // Renderização
+    render {
+        App {
+            layout: grid.containers.small;
+            spacing: relaxed;
+            
+            Header {
+                layout: flex.center;
+                spacing: regular;
+                
+                Title "Lista de Tarefas" {
+                    typography: presets.title;
+                    color: colors.primary;
+                }
+            }
+            
+            Form {
+                layout: flex.spread;
+                spacing: regular;
+                animation: slideUp;
+                
+                Input {
+                    flex: grow;
+                    value: $newTodo;
+                    placeholder: "Adicionar nova tarefa";
+                    onEnter: addTodo;
+                    
+                    base: {
+                        padding: spacing.regular;
+                        border: 1px solid colors.neutral.light;
+                        radius: 8px;
+                        font: typography.presets.body;
+                    }
+                    
+                    focus: {
+                        border-color: colors.primary;
+                        shadow: {
+                            color: colors.primary.alpha;
+                            blur: 4px;
+                            spread: 0;
+                        }
+                    }
+                }
+                
+                Button "Adicionar" {
+                    variant: primary;
+                    size: regular;
+                    onClick: addTodo;
+                    icon: "plus";
+                }
+            }
+            
+            Filters {
+                layout: flex.center;
+                spacing: compact;
+                
+                for (filter in ["all", "active", "completed"]) {
+                    Button filter {
+                        variant: $filter === filter ? "primary" : "ghost";
+                        size: small;
+                        onClick: () => this.filter = filter;
+                    }
+                }
+            }
+            
+            TodoList {
+                layout: flex.stack;
+                spacing: regular;
+                
+                for (todo in $todos | filter($filter)) {
+                    TodoItem {
+                        layout: flex.spread;
+                        animation: slideUp;
+                        
+                        base: {
+                            padding: spacing.regular;
+                            background: colors.neutral.scale(1);
+                            radius: 8px;
+                        }
+                        
+                        hover: {
+                            background: colors.neutral.scale(2);
+                        }
+                        
+                        Checkbox {
+                            checked: todo.completed;
+                            onChange: () => toggleTodo(todo.id);
+                            
+                            base: {
+                                size: 20px;
+                                color: colors.primary;
+                                animation: animations.presets.fadeIn;
+                            }
+                        }
+                        
+                        Text todo.text {
+                            typography: presets.body;
+                            color: todo.completed ? colors.neutral : colors.neutral.dark;
+                            decoration: todo.completed ? "line-through" : "none";
+                            transition: all animations.duration.quick;
+                        }
+                        
+                        DeleteButton {
+                            variant: ghost;
+                            size: small;
+                            color: colors.error;
+                            icon: "trash";
+                            onClick: () => deleteTodo(todo.id);
+                            
+                            hover: {
+                                background: colors.error.alpha;
+                            }
+                        }
+                    }
+                }
+                
+                when (todos.length === 0) {
+                    EmptyState {
+                        layout: flex.center;
+                        spacing: regular;
+                        padding: spacing.relaxed;
+                        
+                        Icon "clipboard-check" {
+                            size: 48px;
+                            color: colors.neutral.light;
+                        }
+                        
+                        Text "Nenhuma tarefa ainda" {
+                            typography: presets.body;
+                            color: colors.neutral;
+                        }
+                    }
+                }
+            }
+            
+            Footer {
+                layout: flex.spread;
+                spacing: regular;
+                
+                Text "${todos.length} tarefas" {
+                    typography: presets.body;
+                    color: colors.neutral;
+                }
+                
+                Button "Limpar Completas" {
+                    variant: ghost;
+                    size: small;
+                    onClick: () => todos = todos.filter(t => !t.completed);
+                    visible: todos.some(t => t.completed);
+                }
+            }
+        }
+    }
+} 

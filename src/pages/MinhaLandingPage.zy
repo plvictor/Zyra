@@ -1,0 +1,189 @@
+import { MeuTema } from "@/themes/MeuTema";
+
+page MinhaLandingPage {
+    // Estado da página
+    state menuAberto = false;
+    state darkMode = false;
+
+    // Métodos
+    function toggleMenu() {
+        menuAberto = !menuAberto;
+    }
+
+    function toggleTheme() {
+        darkMode = !darkMode;
+    }
+
+    // Renderização
+    render {
+        // Container principal
+        Page {
+            theme: MeuTema;  // Usando meu tema
+            background: darkMode ? "#1a1a1a" : "#ffffff";
+            
+            // Cabeçalho com vidro
+            Header {
+                use: GlassCard;  // Usando componente personalizado
+                position: sticky;
+                top: 0;
+                
+                layout: {
+                    type: flex;
+                    justify: space-between;
+                    align: center;
+                    padding: [spacing.md, spacing.lg];
+                }
+                
+                // Logo
+                Logo {
+                    font: typography.main.large;
+                    color: colors.primary;
+                    weight: 600;
+                    text: "Meu Site";
+                }
+                
+                // Menu de navegação
+                Nav {
+                    show: $menuAberto || screen.min(768px);
+                    
+                    layout: {
+                        type: flex;
+                        gap: spacing.md;
+                    }
+                    
+                    // Links do menu
+                    ["Início", "Sobre", "Produtos", "Contato"].map(item => 
+                        Link item {
+                            color: colors.primary;
+                            hover: {
+                                color: colors.highlight;
+                                transform: scale(1.05);
+                            }
+                        }
+                    )
+                }
+                
+                // Botões de ação
+                Actions {
+                    layout: flex;
+                    gap: spacing.sm;
+                    
+                    // Botão de tema
+                    CoolButton {
+                        variant: gradient;
+                        icon: $darkMode ? "sun" : "moon";
+                        onClick: toggleTheme;
+                    }
+                    
+                    // Botão do menu mobile
+                    MenuButton {
+                        show: screen.max(768px);
+                        icon: $menuAberto ? "close" : "menu";
+                        onClick: toggleMenu;
+                    }
+                }
+            }
+            
+            // Seção principal
+            Hero {
+                layout: {
+                    type: grid;
+                    columns: [1, 1];
+                    gap: spacing.xl;
+                    padding: spacing.section;
+                }
+                
+                // Conteúdo
+                Content {
+                    layout: flex.column;
+                    gap: spacing.lg;
+                    
+                    Title {
+                        font: typography.main.title;
+                        color: colors.primary;
+                        text: "Bem-vindo ao Futuro do Design Web";
+                    }
+                    
+                    Text {
+                        font: typography.main.normal;
+                        color: colors.brand.blue;
+                        text: "Crie interfaces incríveis com uma linguagem moderna e expressiva.";
+                    }
+                    
+                    // Botões de ação
+                    Actions {
+                        layout: flex;
+                        gap: spacing.md;
+                        
+                        CoolButton "Começar Agora" {
+                            variant: gradient;
+                            size: large;
+                        }
+                        
+                        CoolButton "Saiba Mais" {
+                            variant: outline;
+                        }
+                    }
+                }
+                
+                // Imagem decorativa
+                Image {
+                    src: "/hero-image.svg";
+                    animate: {
+                        type: float;
+                        duration: 3s;
+                        infinite: true;
+                    }
+                }
+            }
+            
+            // Grade de recursos
+            Features {
+                layout: {
+                    type: grid;
+                    columns: repeat(auto-fit, minmax(250px, 1fr));
+                    gap: spacing.lg;
+                    padding: spacing.section;
+                }
+                
+                // Cards de recursos
+                [
+                    {
+                        icon: "palette",
+                        title: "Design Flexível",
+                        desc: "Crie temas únicos e personalizados"
+                    },
+                    {
+                        icon: "zap",
+                        title: "Performance",
+                        desc: "Otimizado para velocidade"
+                    },
+                    {
+                        icon: "layout",
+                        title: "Componentes",
+                        desc: "Biblioteca rica de componentes"
+                    }
+                ].map(feature =>
+                    FeatureCard {
+                        use: GlassCard;
+                        
+                        Icon feature.icon {
+                            color: colors.highlight;
+                            size: 24px;
+                        }
+                        
+                        Title feature.title {
+                            font: typography.main.large;
+                            color: colors.primary;
+                        }
+                        
+                        Text feature.desc {
+                            font: typography.main.normal;
+                            color: colors.brand.blue;
+                        }
+                    }
+                )
+            }
+        }
+    }
+} 

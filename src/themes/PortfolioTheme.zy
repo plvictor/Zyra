@@ -1,0 +1,248 @@
+theme PortfolioTheme {
+    // Sistema de cores
+    colors {
+        // Cores principais
+        light: {
+            primary: #2563eb;
+            primaryLight: rgba(37, 99, 235, 0.1);
+            background: #ffffff;
+            surface: #f8fafc;
+            surfaceHover: #f1f5f9;
+            text: #1e293b;
+            textSecondary: #64748b;
+        }
+
+        dark: {
+            primary: #60a5fa;
+            primaryLight: rgba(96, 165, 250, 0.1);
+            background: #0f172a;
+            surface: #1e293b;
+            surfaceHover: #334155;
+            text: #f8fafc;
+            textSecondary: #94a3b8;
+        }
+
+        // Gradientes
+        gradients {
+            primary: {
+                from: colors.primary;
+                to: shift(colors.primary, 30deg);
+                angle: 45deg;
+            }
+        }
+    }
+
+    // Tipografia
+    typography {
+        fonts: {
+            body: "Inter";
+            title: "Cal Sans";
+            code: "JetBrains Mono";
+        }
+
+        sizes: {
+            xs: 12;
+            sm: 14;
+            base: 16;
+            lg: 18;
+            xl: 20;
+            title: 32;
+            display: 48;
+        }
+
+        weights: {
+            normal: 400;
+            medium: 500;
+            bold: 700;
+        }
+
+        presets: {
+            title: {
+                family: fonts.title;
+                size: sizes.title;
+                weight: weights.bold;
+                letterSpacing: -0.02em;
+            }
+
+            display: {
+                family: fonts.title;
+                size: sizes.display;
+                weight: weights.bold;
+                letterSpacing: -0.03em;
+                lineHeight: 1.2;
+            }
+
+            body: {
+                family: fonts.body;
+                size: sizes.base;
+                weight: weights.normal;
+                lineHeight: 1.6;
+            }
+        }
+    }
+
+    // Espaçamento
+    spacing {
+        base: 4;
+        scale: [
+            xs: base,
+            sm: base * 2,
+            md: base * 4,
+            lg: base * 6,
+            xl: base * 8,
+            xxl: base * 12
+        ];
+    }
+
+    // Sombras
+    shadows {
+        sm: "0 1px 2px rgba(0,0,0,0.05)";
+        md: "0 4px 6px rgba(0,0,0,0.05)";
+        lg: "0 10px 15px rgba(0,0,0,0.05)";
+    }
+
+    // Bordas
+    borders {
+        radius: {
+            sm: 4;
+            md: 8;
+            lg: 12;
+            xl: 16;
+            full: 9999;
+        }
+    }
+
+    // Animações
+    animations {
+        timing: {
+            quick: 150ms;
+            normal: 250ms;
+            slow: 350ms;
+        }
+
+        easing: {
+            default: "cubic-bezier(0.4, 0, 0.2, 1)";
+            bounce: "cubic-bezier(0.68, -0.55, 0.265, 1.55)";
+            smooth: "cubic-bezier(0.4, 0, 0.2, 1)";
+        }
+
+        presets: {
+            fadeIn: {
+                from: { opacity: 0 };
+                to: { opacity: 1 };
+                duration: timing.normal;
+                easing: easing.smooth;
+            }
+
+            slideIn: {
+                from: {
+                    opacity: 0;
+                    transform: translateY(20px);
+                };
+                to: {
+                    opacity: 1;
+                    transform: translateY(0);
+                };
+                duration: timing.normal;
+                easing: easing.bounce;
+            }
+
+            slideUp: {
+                from: {
+                    opacity: 0;
+                    transform: translateY(10px);
+                };
+                to: {
+                    opacity: 1;
+                    transform: translateY(0);
+                };
+                duration: timing.normal;
+                easing: easing.smooth;
+            }
+
+            float: {
+                0%: { transform: translateY(0) };
+                50%: { transform: translateY(-10px) };
+                100%: { transform: translateY(0) };
+                duration: 3s;
+                easing: easing.smooth;
+                infinite: true;
+            }
+        }
+    }
+
+    // Componentes
+    components {
+        Button {
+            base: {
+                font: typography.presets.body;
+                padding: [spacing.sm, spacing.md];
+                radius: borders.radius.md;
+                transition: all animations.timing.quick;
+            }
+
+            variants: {
+                primary: {
+                    background: colors.primary;
+                    color: white;
+                    
+                    hover: {
+                        transform: translateY(-1px);
+                        background: darken(colors.primary, 5%);
+                    }
+
+                    active: {
+                        transform: translateY(1px);
+                    }
+                }
+
+                outline: {
+                    background: transparent;
+                    border: 1px solid colors.primary;
+                    color: colors.primary;
+
+                    hover: {
+                        background: colors.primaryLight;
+                        transform: translateY(-1px);
+                    }
+
+                    active: {
+                        transform: translateY(1px);
+                    }
+                }
+            }
+        }
+
+        Input {
+            base: {
+                width: 100%;
+                padding: spacing.md;
+                background: colors.surface;
+                border: 1px solid colors.surfaceHover;
+                radius: borders.radius.md;
+                font: typography.presets.body;
+                transition: all animations.timing.quick;
+            }
+
+            focus: {
+                border-color: colors.primary;
+                shadow: 0 0 0 3px colors.primaryLight;
+            }
+        }
+
+        Card {
+            base: {
+                background: colors.surface;
+                radius: borders.radius.lg;
+                shadow: shadows.md;
+                overflow: hidden;
+                transition: all animations.timing.normal;
+            }
+
+            hover: {
+                transform: translateY(-4px);
+                shadow: shadows.lg;
+            }
+        }
+    }
+} 

@@ -1,0 +1,133 @@
+component TodoApp {
+    // Estado do componente
+    state todos = [];
+    state newTodo = "";
+
+    // Métodos
+    function addTodo() {
+        if (this.newTodo.trim()) {
+            this.todos.push({
+                id: Date.now(),
+                text: this.newTodo,
+                completed: false
+            });
+            this.newTodo = "";
+        }
+    }
+
+    function toggleTodo(id) {
+        this.todos = this.todos.map(todo => 
+            todo.id === id 
+                ? { ...todo, completed: !todo.completed }
+                : todo
+        );
+    }
+
+    function deleteTodo(id) {
+        this.todos = this.todos.filter(todo => todo.id !== id);
+    }
+
+    // Template de renderização
+    render {
+        container {
+            style: {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            header {
+                style: {
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+
+                heading "Lista de Tarefas" {
+                    style: {
+                        color: $theme.colors.primary;
+                        font-size: 36px;
+                    }
+                }
+            }
+
+            form {
+                style: {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                input {
+                    style: {
+                        flex: 1;
+                        padding: 10px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 16px;
+                    }
+                    value: $newTodo;
+                    placeholder: "Adicionar nova tarefa";
+                    onInput: (e) => this.newTodo = e.target.value;
+                }
+
+                button {
+                    style: {
+                        padding: 10px 20px;
+                        background: $theme.colors.primary;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    }
+                    onClick: () => this.addTodo();
+                    text: "Adicionar";
+                }
+            }
+
+            list {
+                style: {
+                    list-style: none;
+                    padding: 0;
+                }
+
+                for (todo in $todos) {
+                    item {
+                        style: {
+                            display: flex;
+                            align-items: center;
+                            padding: 10px;
+                            border-bottom: 1px solid #eee;
+                            gap: 10px;
+                        }
+
+                        checkbox {
+                            checked: todo.completed;
+                            onChange: () => this.toggleTodo(todo.id);
+                        }
+
+                        text todo.text {
+                            style: {
+                                flex: 1;
+                                text-decoration: todo.completed ? "line-through" : "none";
+                                color: todo.completed ? "#999" : "#333";
+                            }
+                        }
+
+                        button {
+                            style: {
+                                padding: 5px 10px;
+                                background: #ff4444;
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            }
+                            onClick: () => this.deleteTodo(todo.id);
+                            text: "Excluir";
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 
