@@ -32,7 +32,6 @@ export class Parser {
         if (this.match(TokenType.SERVER)) return this.serverDeclaration();
         if (this.match(TokenType.COMPONENT)) return this.componentDeclaration();
         if (this.match(TokenType.PAGE)) return this.pageDeclaration();
-        if (this.match(TokenType.SOCKET)) return this.socketDeclaration();
         
         throw this.error(this.peek(), "Esperava uma declaração.");
     }
@@ -139,7 +138,7 @@ export class Parser {
     }
 
     private serverDeclaration(): Node {
-        this.consume(TokenType.LEFT_BRACE, "Esperava '{' após 'server'.");
+        this.consume(TokenType.LEFT_BRACE, "Esperava '{' após 'server'");
         
         const properties: Node[] = [];
         while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
@@ -152,55 +151,122 @@ export class Parser {
 
             if (this.match(TokenType.SOCKET)) {
                 properties.push(this.socketDeclaration());
-                continue;
-            }
-
-            // Chave da propriedade pode ser um identificador ou uma string
-            let name: Token;
-            if (this.match(TokenType.IDENTIFIER)) {
-                name = this.previous();
-            } else if (this.match(TokenType.STRING)) {
-                name = this.previous();
-            } else {
-                throw this.error(this.peek(), "Esperava nome da propriedade.");
-            }
-            
-            if (this.match(TokenType.COLON)) {
-                // Propriedade
-                let value: Node;
-                if (this.match(TokenType.LEFT_BRACE)) {
-                    value = this.block();
+            } else if (this.match(TokenType.IDENTIFIER)) {
+                const name = this.previous().lexeme;
+                
+                if (name === "api") {
+                    properties.push(this.apiDeclaration());
+                } else if (this.match(TokenType.COLON)) {
+                    const value = this.expression();
+                    this.consume(TokenType.SEMICOLON, "Esperava ';' após valor da propriedade");
+                    
+                    properties.push({
+                        type: "Property",
+                        name,
+                        value
+                    });
+                } else if (this.match(TokenType.LEFT_BRACE)) {
+                    const block = this.block();
+                    
+                    properties.push({
+                        type: "Property",
+                        name,
+                        value: block
+                    });
                 } else {
-                    value = this.expression();
-                    if (!this.check(TokenType.RIGHT_BRACE)) {
-                        this.consume(TokenType.SEMICOLON, "Esperava ';' após valor da propriedade.");
-                    }
+                    throw this.error(this.peek(), "Esperava ':' ou '{' após nome da propriedade");
                 }
-                
-                properties.push({
-                    type: "Property",
-                    name: name.lexeme,
-                    value
-                });
-            } else if (this.match(TokenType.LEFT_BRACE)) {
-                // Objeto aninhado sem dois pontos
-                const value = this.block();
-                
-                properties.push({
-                    type: "Property",
-                    name: name.lexeme,
-                    value
-                });
             } else {
-                throw this.error(this.peek(), "Esperava ':' ou '{' após nome da propriedade.");
+                throw this.error(this.peek(), "Esperava nome da propriedade");
             }
         }
         
-        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após corpo do server.");
+        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após corpo do servidor");
         
         return {
             type: "ServerDeclaration",
             properties
+        };
+    }
+
+    private apiDeclaration(): Node {
+        this.consume(TokenType.LEFT_BRACE, "Esperava '{' após 'api'");
+        
+        const endpoints: Node[] = [];
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            if (this.match(TokenType.STRING)) {
+                const path = this.previous().literal;
+                this.consume(TokenType.LEFT_BRACE, "Esperava '{' após caminho da API");
+                
+                const properties: Node[] = [];
+                while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+                    if (this.match(TokenType.IDENTIFIER)) {
+                        const name = this.previous().lexeme;
+                        
+                        if (name === "handler") {
+                            properties.push(this.handlerDeclaration());
+                        } else if (this.match(TokenType.COLON)) {
+                            const value = this.expression();
+                            this.consume(TokenType.SEMICOLON, "Esperava ';' após valor da propriedade");
+                            
+                            properties.push({
+                                type: "Property",
+                                name,
+                                value
+                            });
+                        } else {
+                            throw this.error(this.peek(), "Esperava ':' após nome da propriedade");
+                        }
+                    } else {
+                        throw this.error(this.peek(), "Esperava nome da propriedade");
+                    }
+                }
+                
+                this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após propriedades do endpoint");
+                
+                endpoints.push({
+                    type: "ApiEndpoint",
+                    path,
+                    properties
+                });
+            } else {
+                throw this.error(this.peek(), "Esperava caminho da API como string");
+            }
+        }
+        
+        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após endpoints da API");
+        
+        return {
+            type: "ApiDeclaration",
+            endpoints
+        };
+    }
+
+    private handlerDeclaration(): Node {
+        this.consume(TokenType.LEFT_PAREN, "Esperava '(' após 'handler'");
+        const params = this.parameters();
+        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros");
+        this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo do handler");
+        
+        // Skip the handler body for now
+        let braceCount = 1;
+        while (braceCount > 0 && !this.isAtEnd()) {
+            if (this.match(TokenType.LEFT_BRACE)) {
+                braceCount++;
+            } else if (this.match(TokenType.RIGHT_BRACE)) {
+                braceCount--;
+            } else {
+                this.advance();
+            }
+        }
+        
+        return {
+            type: "HandlerDeclaration",
+            params,
+            body: {
+                type: "Block",
+                statements: []
+            }
         };
     }
 
@@ -317,442 +383,27 @@ export class Parser {
     }
 
     private socketHandler(): Node {
-        this.consume(TokenType.LEFT_PAREN, "Esperava '(' após 'on'.");
-        const event = this.expression();
+        this.consume(TokenType.LEFT_PAREN, "Esperava '(' após 'on'");
+        const event = this.consume(TokenType.STRING, "Esperava nome do evento como string");
+        this.consume(TokenType.COMMA, "Esperava ',' após nome do evento");
+        const param = this.consume(TokenType.IDENTIFIER, "Esperava nome do parâmetro");
+        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros");
         
-        let params: string[] = [];
-        if (this.match(TokenType.COMMA)) {
-            if (this.match(TokenType.IDENTIFIER)) {
-                params.push(this.previous().lexeme);
-            } else {
-                throw this.error(this.peek(), "Esperava nome do parâmetro.");
-            }
-        }
+        this.consume(TokenType.LEFT_BRACE, "Esperava '{' após declaração do socket");
         
-        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros.");
-        
-        // Corpo do handler
-        this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo do handler.");
-        const statements: Node[] = [];
-        
+        const body = [];
         while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
-            // Ignorar comentários
-            while (this.match(TokenType.COMMENT)) {
-                // Não faz nada, apenas avança
-            }
-
-            if (this.check(TokenType.RIGHT_BRACE)) break;
-
-            if (this.match(TokenType.IDENTIFIER)) {
-                const name = this.previous().lexeme;
-                
-                if (name === "console") {
-                    // Expressão de console
-                    let expr: Node = {
-                        type: "Identifier",
-                        name: "console"
-                    };
-                    
-                    if (this.match(TokenType.DOT)) {
-                        const method = this.consume(TokenType.IDENTIFIER, "Esperava método do console após '.'.");
-                        expr = {
-                            type: "MemberExpression",
-                            object: expr,
-                            property: {
-                                type: "Identifier",
-                                name: method.lexeme
-                            }
-                        };
-                    }
-                    
-                    if (this.match(TokenType.LEFT_PAREN)) {
-                        expr = this.finishCall(expr);
-                    }
-                    
-                    if (!this.check(TokenType.RIGHT_BRACE)) {
-                        this.consume(TokenType.SEMICOLON, "Esperava ';' após expressão.");
-                    }
-                    
-                    statements.push({
-                        type: "ExpressionStatement",
-                        expression: expr
-                    });
-                    continue;
-                } else if (name === "client") {
-                    // Expressão de client
-                    let expr: Node = {
-                        type: "Identifier",
-                        name: "client"
-                    };
-                    
-                    while (true) {
-                        if (this.match(TokenType.DOT)) {
-                            const prop = this.consume(TokenType.IDENTIFIER, "Esperava nome da propriedade após '.'.");
-                            expr = {
-                                type: "MemberExpression",
-                                object: expr,
-                                property: {
-                                    type: "Identifier",
-                                    name: prop.lexeme
-                                }
-                            };
-                        } else if (this.match(TokenType.LEFT_PAREN)) {
-                            if (this.match(TokenType.STRING)) {
-                                const event = this.previous().literal;
-                                this.consume(TokenType.COMMA, "Esperava ',' após evento.");
-                                
-                                if (this.match(TokenType.LEFT_PAREN)) {
-                                    const params: string[] = [];
-                                    this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros vazios.");
-                                    
-                                    if (this.match(TokenType.ARROW)) {
-                                        this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo da função.");
-                                        const body = this.block();
-                                        
-                                        expr = this.finishCall({
-                                            type: "MemberExpression",
-                                            object: expr,
-                                            property: {
-                                                type: "Identifier",
-                                                name: "on"
-                                            }
-                                        }, [
-                                            {
-                                                type: "StringLiteral",
-                                                value: event
-                                            },
-                                            {
-                                                type: "ArrowFunctionExpression",
-                                                params,
-                                                body
-                                            }
-                                        ]);
-                                    } else {
-                                        throw this.error(this.peek(), "Esperava '=>' após parâmetros.");
-                                    }
-                                } else {
-                                    throw this.error(this.peek(), "Esperava '(' após evento.");
-                                }
-                            } else {
-                                expr = this.finishCall(expr);
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                    
-                    if (!this.check(TokenType.RIGHT_BRACE)) {
-                        this.consume(TokenType.SEMICOLON, "Esperava ';' após expressão.");
-                    }
-                    
-                    statements.push({
-                        type: "ExpressionStatement",
-                        expression: expr
-                    });
-                    continue;
-                }
-                
-                this.current--; // Volta para o identificador
-            }
-
-            statements.push(this.statement());
+            const stmt = this.statement();
+            if (stmt) body.push(stmt);
         }
         
-        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após corpo do handler.");
-
+        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após corpo do socket");
+        
         return {
             type: "SocketHandler",
-            event,
-            params,
-            body: {
-                type: "Block",
-                statements
-            }
-        };
-    }
-
-    private finishCall(callee: Node, args?: Node[]): Node {
-        if (!args) {
-            args = [];
-            if (!this.check(TokenType.RIGHT_PAREN)) {
-                do {
-                    args.push(this.expression());
-                } while (this.match(TokenType.COMMA));
-            }
-        }
-
-        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após argumentos.");
-
-        return {
-            type: "CallExpression",
-            callee,
-            arguments: args
-        };
-    }
-
-    private member(): Node {
-        let expr = this.call();
-
-        while (true) {
-            if (this.match(TokenType.DOT)) {
-                const name = this.consume(TokenType.IDENTIFIER, "Esperava nome da propriedade após '.'.");
-                expr = {
-                    type: "MemberExpression",
-                    object: expr,
-                    property: {
-                        type: "Identifier",
-                        name: name.lexeme
-                    }
-                };
-            } else {
-                break;
-            }
-        }
-
-        return expr;
-    }
-
-    private call(): Node {
-        let expr = this.primary();
-
-        while (true) {
-            if (this.match(TokenType.LEFT_PAREN)) {
-                expr = this.finishCall(expr);
-            } else if (this.match(TokenType.DOT)) {
-                const name = this.consume(TokenType.IDENTIFIER, "Esperava nome da propriedade após '.'.");
-                expr = {
-                    type: "MemberExpression",
-                    object: expr,
-                    property: {
-                        type: "Identifier",
-                        name: name.lexeme
-                    }
-                };
-            } else {
-                break;
-            }
-        }
-
-        return expr;
-    }
-
-    private primary(): Node {
-        if (this.match(TokenType.STRING)) {
-            return {
-                type: "StringLiteral",
-                value: this.previous().literal
-            };
-        }
-        
-        if (this.match(TokenType.NUMBER)) {
-            return {
-                type: "NumberLiteral",
-                value: this.previous().literal
-            };
-        }
-        
-        if (this.match(TokenType.TRUE)) {
-            return {
-                type: "BooleanLiteral",
-                value: true
-            };
-        }
-        
-        if (this.match(TokenType.FALSE)) {
-            return {
-                type: "BooleanLiteral",
-                value: false
-            };
-        }
-        
-        if (this.match(TokenType.IDENTIFIER)) {
-            const name = this.previous().lexeme;
-            if (name === "console") {
-                let expr: Node = {
-                    type: "Identifier",
-                    name: "console"
-                };
-                
-                if (this.match(TokenType.DOT)) {
-                    const method = this.consume(TokenType.IDENTIFIER, "Esperava método do console após '.'.");
-                    expr = {
-                        type: "MemberExpression",
-                        object: expr,
-                        property: {
-                            type: "Identifier",
-                            name: method.lexeme
-                        }
-                    };
-                }
-                
-                return expr;
-            }
-            return {
-                type: "Identifier",
-                name: name
-            };
-        }
-        
-        if (this.match(TokenType.LEFT_BRACE)) {
-            const properties: Node[] = [];
-            
-            if (!this.check(TokenType.RIGHT_BRACE)) {
-                do {
-                    // Chave da propriedade pode ser um identificador ou uma string
-                    let name: Token;
-                    if (this.match(TokenType.IDENTIFIER)) {
-                        name = this.previous();
-                    } else if (this.match(TokenType.STRING)) {
-                        name = this.previous();
-                    } else {
-                        throw this.error(this.peek(), "Esperava nome da propriedade.");
-                    }
-                    
-                    this.consume(TokenType.COLON, "Esperava ':' após nome da propriedade.");
-                    const value = this.expression();
-                    
-                    properties.push({
-                        type: "Property",
-                        name: name.lexeme,
-                        value
-                    });
-                } while (this.match(TokenType.COMMA));
-            }
-            
-            this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após objeto.");
-            
-            return {
-                type: "ObjectExpression",
-                properties
-            };
-        }
-        
-        throw this.error(this.peek(), "Esperava uma expressão.");
-    }
-
-    private block(): Node {
-        const statements: Node[] = [];
-        
-        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
-            // Ignorar comentários
-            while (this.match(TokenType.COMMENT)) {
-                // Não faz nada, apenas avança
-            }
-
-            if (this.check(TokenType.RIGHT_BRACE)) break;
-
-            if (this.match(TokenType.SOCKET)) {
-                statements.push(this.socketDeclaration());
-                continue;
-            }
-
-            if (this.match(TokenType.IDENTIFIER)) {
-                const name = this.previous().lexeme;
-                
-                if (name === "console") {
-                    // Expressão de console
-                    let expr: Node = {
-                        type: "Identifier",
-                        name: "console"
-                    };
-                    
-                    if (this.match(TokenType.DOT)) {
-                        const method = this.consume(TokenType.IDENTIFIER, "Esperava método do console após '.'.");
-                        expr = {
-                            type: "MemberExpression",
-                            object: expr,
-                            property: {
-                                type: "Identifier",
-                                name: method.lexeme
-                            }
-                        };
-                    }
-                    
-                    if (this.match(TokenType.LEFT_PAREN)) {
-                        expr = this.finishCall(expr);
-                    }
-                    
-                    if (!this.check(TokenType.RIGHT_BRACE)) {
-                        this.consume(TokenType.SEMICOLON, "Esperava ';' após expressão.");
-                    }
-                    
-                    statements.push({
-                        type: "ExpressionStatement",
-                        expression: expr
-                    });
-                    continue;
-                }
-                
-                if (this.match(TokenType.COLON)) {
-                    // Propriedade
-                    let value: Node;
-                    if (this.match(TokenType.LEFT_BRACE)) {
-                        value = this.block();
-                    } else {
-                        value = this.expression();
-                        if (!this.check(TokenType.RIGHT_BRACE)) {
-                            this.consume(TokenType.SEMICOLON, "Esperava ';' após valor da propriedade.");
-                        }
-                    }
-                    
-                    statements.push({
-                        type: "Property",
-                        name: name,
-                        value
-                    });
-                } else if (this.match(TokenType.LEFT_BRACE)) {
-                    // Objeto aninhado sem dois pontos
-                    const value = this.block();
-                    
-                    statements.push({
-                        type: "Property",
-                        name: name,
-                        value
-                    });
-                } else {
-                    // Expressão começando com identificador
-                    this.current--; // Volta para o identificador
-                    statements.push(this.statement());
-                }
-                continue;
-            }
-
-            if (this.match(TokenType.STRING)) {
-                const name = this.previous().lexeme;
-                
-                if (this.match(TokenType.COLON)) {
-                    // Propriedade
-                    let value: Node;
-                    if (this.match(TokenType.LEFT_BRACE)) {
-                        value = this.block();
-                    } else {
-                        value = this.expression();
-                        if (!this.check(TokenType.RIGHT_BRACE)) {
-                            this.consume(TokenType.SEMICOLON, "Esperava ';' após valor da propriedade.");
-                        }
-                    }
-                    
-                    statements.push({
-                        type: "Property",
-                        name: name,
-                        value
-                    });
-                } else {
-                    // Expressão começando com string
-                    this.current--; // Volta para a string
-                    statements.push(this.statement());
-                }
-                continue;
-            }
-
-            statements.push(this.statement());
-        }
-        
-        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após bloco.");
-        
-        return {
-            type: "Block",
-            statements
+            event: event.literal,
+            parameter: param.lexeme,
+            body: body
         };
     }
 
@@ -767,9 +418,8 @@ export class Parser {
 
     private expressionStatement(): Node {
         const expr = this.expression();
-        if (!this.check(TokenType.RIGHT_BRACE)) {
-            this.consume(TokenType.SEMICOLON, "Esperava ';' após expressão.");
-        }
+        // Ponto e vírgula é opcional
+        this.match(TokenType.SEMICOLON);
         return {
             type: "ExpressionStatement",
             expression: expr
@@ -828,9 +478,11 @@ export class Parser {
         
         if (!this.check(TokenType.RIGHT_PAREN)) {
             do {
-                params.push(
-                    this.consume(TokenType.IDENTIFIER, "Esperava nome do parâmetro.").lexeme
-                );
+                if (this.match(TokenType.IDENTIFIER)) {
+                    params.push(this.previous().lexeme);
+                } else {
+                    throw this.error(this.peek(), "Esperava nome do parâmetro");
+                }
             } while (this.match(TokenType.COMMA));
         }
 
@@ -923,24 +575,322 @@ export class Parser {
     }
 
     private expression(): Node {
+        if (this.match(TokenType.LEFT_BRACKET)) {
+            const elements: Node[] = [];
+            
+            if (!this.check(TokenType.RIGHT_BRACKET)) {
+                do {
+                    if (this.match(TokenType.IDENTIFIER)) {
+                        const name = this.previous().lexeme;
+                        this.consume(TokenType.COLON, "Esperava ':' após nome da propriedade");
+                        const value = this.expression();
+                        elements.push({
+                            type: "Property",
+                            name,
+                            value
+                        });
+                    } else {
+                        elements.push(this.expression());
+                    }
+                } while (this.match(TokenType.COMMA));
+            }
+            
+            this.consume(TokenType.RIGHT_BRACKET, "Esperava ']' após elementos do array");
+            
+            return {
+                type: "ArrayExpression",
+                elements
+            };
+        }
+        
+        if (this.match(TokenType.LEFT_BRACE)) {
+            const properties: Node[] = [];
+            
+            if (!this.check(TokenType.RIGHT_BRACE)) {
+                do {
+                    if (this.match(TokenType.IDENTIFIER)) {
+                        const name = this.previous().lexeme;
+                        this.consume(TokenType.COLON, "Esperava ':' após nome da propriedade");
+                        const value = this.expression();
+                        properties.push({
+                            type: "Property",
+                            name,
+                            value
+                        });
+                    } else if (this.match(TokenType.STRING)) {
+                        const name = this.previous().literal;
+                        this.consume(TokenType.COLON, "Esperava ':' após nome da propriedade");
+                        const value = this.expression();
+                        properties.push({
+                            type: "Property",
+                            name,
+                            value
+                        });
+                    } else {
+                        throw this.error(this.peek(), "Esperava nome da propriedade");
+                    }
+                } while (this.match(TokenType.COMMA));
+            }
+            
+            this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após propriedades do objeto");
+            
+            return {
+                type: "ObjectExpression",
+                properties
+            };
+        }
+        
         if (this.match(TokenType.LEFT_PAREN)) {
-            const params = this.parameters();
-            this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros.");
+            const expr = this.expression();
+            this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após expressão");
             
             if (this.match(TokenType.ARROW)) {
-                this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo da função.");
+                this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo da função");
                 const body = this.block();
                 
                 return {
                     type: "ArrowFunctionExpression",
-                    params,
+                    params: [expr],
                     body
                 };
             }
             
-            this.current--; // Volta para o '('
+            return expr;
         }
         
         return this.member();
+    }
+
+    private member(): Node {
+        let expr: Node = this.primary();
+        
+        while (true) {
+            if (this.match(TokenType.DOT)) {
+                const property = this.consume(TokenType.IDENTIFIER, "Esperava nome da propriedade após '.'");
+                expr = {
+                    type: "MemberExpression",
+                    object: expr,
+                    property: {
+                        type: "Identifier",
+                        name: property.lexeme
+                    }
+                };
+            } else if (this.match(TokenType.LEFT_PAREN)) {
+                expr = this.finishCall(expr);
+            } else {
+                break;
+            }
+        }
+        
+        return expr;
+    }
+
+    private primary(): Node {
+        if (this.match(TokenType.STRING)) {
+            return {
+                type: "StringLiteral",
+                value: this.previous().literal
+            };
+        }
+        
+        if (this.match(TokenType.NUMBER)) {
+            return {
+                type: "NumberLiteral",
+                value: this.previous().literal
+            };
+        }
+        
+        if (this.match(TokenType.TRUE)) {
+            return {
+                type: "BooleanLiteral",
+                value: true
+            };
+        }
+        
+        if (this.match(TokenType.FALSE)) {
+            return {
+                type: "BooleanLiteral",
+                value: false
+            };
+        }
+        
+        if (this.match(TokenType.IDENTIFIER)) {
+            return {
+                type: "Identifier",
+                name: this.previous().lexeme
+            };
+        }
+        
+        if (this.match(TokenType.LEFT_PAREN)) {
+            const expr = this.expression();
+            this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após expressão");
+            return expr;
+        }
+        
+        throw this.error(this.peek(), "Esperava expressão");
+    }
+
+    private finishCall(callee: Node): Node {
+        const args: Node[] = [];
+        
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            do {
+                args.push(this.expression());
+            } while (this.match(TokenType.COMMA));
+        }
+        
+        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após argumentos");
+        
+        return {
+            type: "CallExpression",
+            callee,
+            arguments: args
+        };
+    }
+
+    private block(): Node {
+        const statements: Node[] = [];
+        
+        while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+            // Ignorar comentários
+            while (this.match(TokenType.COMMENT)) {
+                // Não faz nada, apenas avança
+            }
+
+            if (this.check(TokenType.RIGHT_BRACE)) break;
+
+            if (this.match(TokenType.IDENTIFIER)) {
+                const identifier = this.previous();
+                
+                if (this.match(TokenType.LEFT_PAREN)) {
+                    // Pode ser uma declaração de função ou uma chamada de função
+                    const start = this.current;
+                    let isFunction = false;
+                    
+                    // Olhar à frente para ver se é uma declaração de função
+                    while (!this.check(TokenType.RIGHT_PAREN) && !this.isAtEnd()) {
+                        if (this.match(TokenType.IDENTIFIER)) {
+                            // Continua procurando
+                        } else {
+                            // Se encontrar algo que não é um identificador, não é uma declaração de função
+                            break;
+                        }
+                        
+                        if (this.match(TokenType.COMMA)) {
+                            // Continua procurando
+                        }
+                    }
+                    
+                    if (this.match(TokenType.RIGHT_PAREN)) {
+                        isFunction = this.check(TokenType.LEFT_BRACE);
+                    }
+                    
+                    // Voltar para o início dos parâmetros
+                    this.current = start;
+                    
+                    if (isFunction) {
+                        // É uma declaração de função
+                        const params = this.parameters();
+                        this.consume(TokenType.RIGHT_PAREN, "Esperava ')' após parâmetros");
+                        this.consume(TokenType.LEFT_BRACE, "Esperava '{' antes do corpo da função");
+                        const body = this.block();
+                        
+                        statements.push({
+                            type: "Property",
+                            name: identifier.lexeme,
+                            value: {
+                                type: "FunctionExpression",
+                                params,
+                                body
+                            }
+                        });
+                    } else {
+                        // É uma chamada de função
+                        this.current--; // Voltar para o parêntese esquerdo
+                        const expr = this.expression();
+                        // Ponto e vírgula é opcional
+                        this.match(TokenType.SEMICOLON);
+                        statements.push({
+                            type: "ExpressionStatement",
+                            expression: expr
+                        });
+                    }
+                } else if (this.match(TokenType.COLON)) {
+                    // Property declaration
+                    let value: Node;
+                    if (this.match(TokenType.LEFT_BRACE)) {
+                        value = this.block();
+                    } else {
+                        value = this.expression();
+                        // Ponto e vírgula é opcional
+                        this.match(TokenType.SEMICOLON);
+                    }
+                    
+                    statements.push({
+                        type: "Property",
+                        name: identifier.lexeme,
+                        value
+                    });
+                } else if (this.match(TokenType.LEFT_BRACE)) {
+                    // Block without colon
+                    const value = this.block();
+                    statements.push({
+                        type: "Property",
+                        name: identifier.lexeme,
+                        value
+                    });
+                } else {
+                    // Regular expression
+                    this.current--; // Go back to identifier
+                    const expr = this.expression();
+                    // Ponto e vírgula é opcional
+                    this.match(TokenType.SEMICOLON);
+                    statements.push({
+                        type: "ExpressionStatement",
+                        expression: expr
+                    });
+                }
+            } else if (this.match(TokenType.STRING)) {
+                const string = this.previous();
+                
+                if (this.match(TokenType.COLON)) {
+                    // Property with string key
+                    let value: Node;
+                    if (this.match(TokenType.LEFT_BRACE)) {
+                        value = this.block();
+                    } else {
+                        value = this.expression();
+                        // Ponto e vírgula é opcional
+                        this.match(TokenType.SEMICOLON);
+                    }
+                    
+                    statements.push({
+                        type: "Property",
+                        name: string.literal,
+                        value
+                    });
+                } else {
+                    // Regular string expression
+                    this.current--; // Go back to string
+                    const expr = this.expression();
+                    // Ponto e vírgula é opcional
+                    this.match(TokenType.SEMICOLON);
+                    statements.push({
+                        type: "ExpressionStatement",
+                        expression: expr
+                    });
+                }
+            } else {
+                const stmt = this.statement();
+                if (stmt) statements.push(stmt);
+            }
+        }
+        
+        this.consume(TokenType.RIGHT_BRACE, "Esperava '}' após bloco");
+        
+        return {
+            type: "Block",
+            statements
+        };
     }
 } 

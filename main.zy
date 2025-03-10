@@ -1,0 +1,87 @@
+// Zyra - Uma linguagem moderna e independente
+// Tudo é componente e design é nativo!
+
+// Define um novo componente
+component MeuSite {
+  // Estado do componente
+  state {
+    titulo = "Bem-vindo ao Zyra!"
+    contador = 0
+    temaEscuro = false
+  }
+
+  // Estilo é parte da linguagem, não precisa de CSS!
+  style {
+    // Cores predefinidas da linguagem
+    cores {
+      primaria = #4287f5
+      secundaria = #42f5d1
+      texto = #333333
+      fundo = #ffffff
+    }
+
+    // Animações nativas
+    animacoes {
+      entrada {
+        de: { opacidade: 0, y: -20 }
+        para: { opacidade: 1, y: 0 }
+        duracao: 0.5s
+        suavizacao: suave
+      }
+    }
+  }
+
+  // Eventos são tratados com ->
+  eventos {
+    aoClicar -> {
+      contador += 1
+      atualizar()
+    }
+
+    aoMudarTema -> {
+      temaEscuro = !temaEscuro
+      if temaEscuro {
+        cores.fundo = #1a1a1a
+        cores.texto = #ffffff
+      } else {
+        cores.fundo = #ffffff
+        cores.texto = #333333
+      }
+    }
+  }
+
+  // A interface é declarativa e simples
+  interface {
+    Cabecalho {
+      texto: titulo
+      cor: cores.primaria
+      tamanho: 2em
+      animacao: animacoes.entrada
+    }
+
+    Cartao {
+      largura: 80%
+      margem: centro
+      sombra: suave
+      fundo: cores.fundo
+      
+      Texto {
+        conteudo: "Contador: ${contador}"
+        cor: cores.texto
+        alinhamento: centro
+      }
+
+      Botao {
+        texto: "Incrementar"
+        cor: cores.secundaria
+        acao: aoClicar
+      }
+
+      Botao {
+        texto: "Mudar Tema"
+        cor: cores.primaria
+        acao: aoMudarTema
+      }
+    }
+  }
+} 

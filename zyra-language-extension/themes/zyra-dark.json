@@ -1,0 +1,74 @@
+{
+    "name": "Zyra Dark",
+    "type": "dark",
+    "colors": {
+        "editor.background": "#1E1E1E",
+        "editor.foreground": "#D4D4D4",
+        "activityBarBadge.background": "#42A5F5",
+        "sideBarTitle.foreground": "#BBBBBB"
+    },
+    "tokenColors": [
+        {
+            "scope": ["keyword.control.zyra"],
+            "settings": {
+                "foreground": "#C586C0",
+                "fontStyle": "bold"
+            }
+        },
+        {
+            "scope": ["support.class.zyra"],
+            "settings": {
+                "foreground": "#4EC9B0"
+            }
+        },
+        {
+            "scope": ["support.function.zyra"],
+            "settings": {
+                "foreground": "#DCDCAA"
+            }
+        },
+        {
+            "scope": ["constant.other.color.rgb-value.zyra"],
+            "settings": {
+                "foreground": "#CE9178"
+            }
+        },
+        {
+            "scope": ["constant.numeric.unit.zyra"],
+            "settings": {
+                "foreground": "#B5CEA8"
+            }
+        },
+        {
+            "scope": ["support.type.property-name.css.zyra"],
+            "settings": {
+                "foreground": "#9CDCFE"
+            }
+        },
+        {
+            "scope": ["string.quoted.double.zyra", "string.quoted.single.zyra"],
+            "settings": {
+                "foreground": "#CE9178"
+            }
+        },
+        {
+            "scope": ["constant.numeric.zyra"],
+            "settings": {
+                "foreground": "#B5CEA8"
+            }
+        },
+        {
+            "scope": ["keyword.operator.zyra"],
+            "settings": {
+                "foreground": "#D4D4D4"
+            }
+        },
+        {
+            "scope": ["comment.block.zyra", "comment.line.double-slash.zyra"],
+            "settings": {
+                "foreground": "#6A9955",
+                "fontStyle": "italic"
+            }
+        }
+    ]
+} 

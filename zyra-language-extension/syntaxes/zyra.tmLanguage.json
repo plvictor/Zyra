@@ -1,0 +1,139 @@
+{
+    "name": "Zyra",
+    "scopeName": "source.zyra",
+    "fileTypes": ["zy"],
+    "patterns": [
+        {
+            "match": "\\b(component|state|props|style|render|function|if|else|for|while|return|import|export|from|socket|on|async|await|try|catch|finally|new|class|let|const|this|null|true|false|interface|type|enum|public|private|protected|static|get|set)\\b",
+            "name": "keyword.control.zyra"
+        },
+        {
+            "match": "\\b(Map|Set|Date|Array|String|Number|Boolean|Promise|Error|RegExp|Math|Object|Symbol|BigInt)\\b",
+            "name": "support.class.zyra"
+        },
+        {
+            "match": "\\b(console|document|window|fetch|socket|localStorage|sessionStorage)\\.(log|error|warn|info|debug|querySelector|getElementById|addEventListener|removeEventListener|emit|on|broadcast|getItem|setItem)\\b",
+            "name": "support.function.zyra"
+        },
+        {
+            "match": "#([0-9A-Fa-f]{3}){1,2}\\b",
+            "name": "constant.other.color.rgb-value.zyra"
+        },
+        {
+            "match": "\\b\\d+(\\.\\d+)?(px|em|rem|vh|vw|%|s|ms|deg|rad|turn)\\b",
+            "name": "constant.numeric.unit.zyra"
+        },
+        {
+            "match": "\\b(display|position|margin|padding|width|height|color|background|font|border|flex|grid|gap|transition|transform|animation|opacity|z-index|overflow|cursor|box-shadow|text-align|justify-content|align-items)(-[a-z]+)*\\b",
+            "name": "support.type.property-name.css.zyra"
+        },
+        {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.double.zyra",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "constant.character.escape.zyra"
+                },
+                {
+                    "match": "\\$\\{([^}]*)\\}",
+                    "name": "entity.other.attribute-name.zyra"
+                }
+            ]
+        },
+        {
+            "begin": "'",
+            "end": "'",
+            "name": "string.quoted.single.zyra",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "constant.character.escape.zyra"
+                }
+            ]
+        },
+        {
+            "begin": "`",
+            "end": "`",
+            "name": "string.quoted.template.zyra",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "constant.character.escape.zyra"
+                },
+                {
+                    "match": "\\$\\{([^}]*)\\}",
+                    "name": "entity.other.attribute-name.zyra"
+                }
+            ]
+        },
+        {
+            "match": "\\b(\\d+(\\.\\d+)?([eE][+-]?\\d+)?)\\b",
+            "name": "constant.numeric.zyra"
+        },
+        {
+            "match": "\\b(=>|\\+|-|\\*|/|%|&&|\\|\\||!|=|==|===|!=|!==|<|>|<=|>=|\\?|:|\\?\\?|\\.|\\?\\.|\\.\\.\\.|\\.\\.)\\b",
+            "name": "keyword.operator.zyra"
+        },
+        {
+            "begin": "/\\*",
+            "end": "\\*/",
+            "name": "comment.block.zyra"
+        },
+        {
+            "match": "//.*$",
+            "name": "comment.line.double-slash.zyra"
+        },
+        {
+            "match": "@[a-zA-Z][a-zA-Z0-9]*",
+            "name": "entity.name.function.decorator.zyra"
+        },
+        {
+            "match": "\\b([A-Z][a-zA-Z0-9]*)\\b",
+            "name": "entity.name.type.class.zyra"
+        },
+        {
+            "match": "<[^>]+>",
+            "name": "entity.name.tag.zyra"
+        },
+        {
+            "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(?=\\()",
+            "name": "entity.name.function.zyra"
+        },
+        {
+            "match": "\\b(true|false|null|undefined)\\b",
+            "name": "constant.language.zyra"
+        },
+        {
+            "begin": "{",
+            "end": "}",
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ],
+            "name": "meta.brace.curly.zyra"
+        },
+        {
+            "begin": "\\(",
+            "end": "\\)",
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ],
+            "name": "meta.brace.round.zyra"
+        },
+        {
+            "begin": "\\[",
+            "end": "\\]",
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ],
+            "name": "meta.brace.square.zyra"
+        }
+    ]
+} 

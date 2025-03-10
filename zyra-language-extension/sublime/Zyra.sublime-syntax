@@ -1,0 +1,99 @@
+%YAML 1.2
+---
+name: Zyra
+file_extensions: [zy]
+scope: source.zyra
+
+contexts:
+  main:
+    - match: '\b(component|state|props|style|render|function|if|else|for|while|return|import|export|from|socket|on|async|await|try|catch|finally|new|class|let|const|this|null|true|false)\b'
+      scope: keyword.control.zyra
+    
+    - match: '\b(Map|Set|Date|Array|String|Number|Boolean|Promise|Error)\b'
+      scope: support.class.zyra
+    
+    - match: '\b(console|document|window|fetch|socket)\.(log|error|warn|info|debug|querySelector|getElementById|addEventListener|removeEventListener|emit|on|broadcast)\b'
+      scope: support.function.zyra
+    
+    - match: '#([0-9A-Fa-f]{3}){1,2}\b'
+      scope: constant.other.color.rgb-value.zyra
+    
+    - match: '\b\d+(\.\d+)?(px|em|rem|vh|vw|%)\b'
+      scope: constant.numeric.unit.zyra
+    
+    - match: '\b(display|position|margin|padding|width|height|color|background|font-size|border|flex|grid)(-[a-z]+)*\b'
+      scope: support.type.property-name.css.zyra
+    
+    # Strings
+    - match: '"'
+      push: double_quoted_string
+    
+    - match: "'"
+      push: single_quoted_string
+    
+    - match: '`'
+      push: template_string
+    
+    # Numbers
+    - match: '\b(\d+(\.\d+)?([eE][+-]?\d+)?)\b'
+      scope: constant.numeric.zyra
+    
+    # Operators
+    - match: '\b(=>|\+|-|\*|/|%|&&|\|\||!|=|==|!=|<|>|<=|>=)\b'
+      scope: keyword.operator.zyra
+    
+    # Comments
+    - match: '/\*'
+      push: block_comment
+    
+    - match: '//'
+      push: line_comment
+    
+    # Decorators
+    - match: '@[a-zA-Z][a-zA-Z0-9]*'
+      scope: entity.name.function.decorator.zyra
+    
+    # Classes
+    - match: '\b([A-Z][a-zA-Z0-9]*)\b'
+      scope: entity.name.type.class.zyra
+    
+    # HTML Tags
+    - match: '<[^>]+>'
+      scope: entity.name.tag.zyra
+    
+    # Functions
+    - match: '\b[a-zA-Z_][a-zA-Z0-9_]*\s*(?=\()'
+      scope: entity.name.function.zyra
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.zyra
+    - match: '\\\.'
+      scope: constant.character.escape.zyra
+    - match: '"'
+      pop: true
+
+  single_quoted_string:
+    - meta_scope: string.quoted.single.zyra
+    - match: '\\\.'
+      scope: constant.character.escape.zyra
+    - match: "'"
+      pop: true
+
+  template_string:
+    - meta_scope: string.quoted.template.zyra
+    - match: '\\\.'
+      scope: constant.character.escape.zyra
+    - match: '\$\{([^}]*)\}'
+      scope: entity.other.attribute-name.zyra
+    - match: '`'
+      pop: true
+
+  block_comment:
+    - meta_scope: comment.block.zyra
+    - match: '\*/'
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.double-slash.zyra
+    - match: '$'
+      pop: true 

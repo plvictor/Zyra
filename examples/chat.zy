@@ -1,0 +1,43 @@
+component ChatRoom {
+    state messages: [];
+    state users: [];
+    
+    socket {
+        on("message", data) {
+            messages.push(data);
+            emit("messageReceived", data);
+        }
+        
+        on("userJoined", user) {
+            users.push(user);
+            emit("userList", users);
+        }
+    }
+    
+    style {
+        messages {
+            layout: grid;
+            gap: 1rem;
+            padding: 1rem;
+        }
+        
+        message {
+            background: #f0f0f0;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            animation: slideIn 0.3s;
+        }
+    }
+    
+    render {
+        div {
+            class: "messages";
+            for message in messages {
+                div {
+                    class: "message";
+                    text: message.content;
+                }
+            }
+        }
+    }
+} 

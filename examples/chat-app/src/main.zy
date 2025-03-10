@@ -1,0 +1,104 @@
+// Chat Application Example
+import { ChatRoom } from "./components/ChatRoom"
+import { UserList } from "./components/UserList"
+import { MessageInput } from "./components/MessageInput"
+
+component ChatApp {
+    state {
+        currentUser: null,
+        messages: [],
+        users: []
+    }
+
+    function onMount() {
+        this.connectToServer()
+    }
+
+    async function connectToServer() {
+        try {
+            let username = await prompt("Enter your username:")
+            this.currentUser = { id: Date.now(), name: username }
+            socket.emit("userJoined", this.currentUser)
+        } catch (e) {
+            console.error("Failed to connect:", e)
+        }
+    }
+
+    function sendMessage(text) {
+        if (!text.trim()) return
+        
+        let message = {
+            id: Date.now(),
+            text,
+            user: this.currentUser,
+            timestamp: new Date().toISOString()
+        }
+        
+        socket.emit("newMessage", message)
+    }
+
+    style {
+        .chat-container {
+            display: grid
+            grid-template-columns: 200px 1fr
+            gap: 20px
+            height: 100vh
+            padding: 20px
+            background: #f5f5f5
+        }
+
+        .main-content {
+            display: flex
+            flex-direction: column
+            background: white
+            border-radius: 10px
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1)
+        }
+    }
+
+    render {
+        <div class="chat-container">
+            <UserList users={users} currentUser={currentUser} />
+            <div class="main-content">
+                <ChatRoom messages={messages} currentUser={currentUser} />
+                <MessageInput onSend={sendMessage} />
+            </div>
+        </div>
+    }
+}
+
+socket ChatServer {
+    state {
+        users: new Map()
+    }
+
+    on "connection" (socket) {
+        console.log("New client connected")
+
+        socket.on("userJoined", (user) => {
+            this.users.set(socket.id, user)
+            this.broadcastUsers()
+            this.broadcast("userJoined", user)
+        })
+
+        socket.on("newMessage", (message) => {
+            this.broadcast("message", message)
+        })
+
+        socket.on("disconnect", () => {
+            let user = this.users.get(socket.id)
+            if (user) {
+                this.users.delete(socket.id)
+                this.broadcastUsers()
+                this.broadcast("userLeft", user)
+            }
+        })
+    }
+
+    function broadcastUsers() {
+        this.broadcast("users", Array.from(this.users.values()))
+    }
+}
+
+// Start the application
+new ChatApp() 

@@ -1,54 +1,80 @@
 // Tipos de tokens da linguagem Zyra
 export enum TokenType {
     // Palavras-chave
-    IMPORT = 'IMPORT',
-    AS = 'AS',
-    FROM = 'FROM',
-    APP = 'APP',
-    SERVER = 'SERVER',
-    COMPONENT = 'COMPONENT',
-    PAGE = 'PAGE',
-    STATE = 'STATE',
-    FUNCTION = 'FUNCTION',
-    RENDER = 'RENDER',
-    IF = 'IF',
-    ELSE = 'ELSE',
-    FOR = 'FOR',
-    IN = 'IN',
-    SOCKET = 'SOCKET',
-    EMIT = 'EMIT',
-    ON = 'ON',
-    TRUE = 'TRUE',
-    FALSE = 'FALSE',
-    RETURN = 'RETURN',
-    
+    IMPORT = "IMPORT",
+    FROM = "FROM",
+    AS = "AS",
+    APP = "APP",
+    SERVER = "SERVER",
+    SOCKET = "SOCKET",
+    ON = "ON",
+    COMPONENT = "COMPONENT",
+    PAGE = "PAGE",
+    STATE = "STATE",
+    FUNCTION = "FUNCTION",
+    RENDER = "RENDER",
+    IF = "IF",
+    ELSE = "ELSE",
+    FOR = "FOR",
+    IN = "IN",
+    RETURN = "RETURN",
+    TRUE = "TRUE",
+    FALSE = "FALSE",
+    EXPORT = "EXPORT",
+
+    // Identificadores e literais
+    IDENTIFIER = "IDENTIFIER",
+    STRING = "STRING",
+    NUMBER = "NUMBER",
+    COMMENT = "COMMENT",
+    COLOR = "COLOR",
+    UNIT = "UNIT",
+    NULL = "NULL",
+
     // Símbolos
-    LEFT_BRACE = '{',
-    RIGHT_BRACE = '}',
-    LEFT_PAREN = '(',
-    RIGHT_PAREN = ')',
-    LEFT_BRACKET = '[',
-    RIGHT_BRACKET = ']',
-    COLON = ':',
-    SEMICOLON = ';',
-    COMMA = ',',
-    ARROW = '=>',
-    DOT = '.',
-    
-    // Outros
-    COMMENT = 'COMMENT',
-    STRING = 'STRING',
-    NUMBER = 'NUMBER',
-    BOOLEAN = 'BOOLEAN',
-    IDENTIFIER = 'IDENTIFIER',
-    EOF = 'EOF'
+    LEFT_BRACE = "LEFT_BRACE",         // {
+    RIGHT_BRACE = "RIGHT_BRACE",       // }
+    LEFT_PAREN = "LEFT_PAREN",         // (
+    RIGHT_PAREN = "RIGHT_PAREN",       // )
+    LEFT_BRACKET = "LEFT_BRACKET",     // [
+    RIGHT_BRACKET = "RIGHT_BRACKET",   // ]
+    COMMA = "COMMA",                   // ,
+    DOT = "DOT",                       // .
+    SEMICOLON = "SEMICOLON",           // ;
+    COLON = "COLON",                   // :
+    ARROW = "ARROW",                   // =>
+
+    // Final de arquivo
+    EOF = "EOF",
+
+    // Comparação
+    EQUALS = "EQUALS",
+    NOT_EQUALS = "NOT_EQUALS",
+    GREATER = "GREATER",
+    LESS = "LESS",
+    GREATER_EQUAL = "GREATER_EQUAL",
+    LESS_EQUAL = "LESS_EQUAL",
+
+    // Operadores
+    EQUAL = "EQUAL",
+    PLUS = "PLUS",
+    MINUS = "MINUS",
+    MULTIPLY = "MULTIPLY",
+    DIVIDE = "DIVIDE",
+    NOT = "NOT"
 }
 
-export interface Token {
-    type: TokenType;
-    lexeme: string;
-    literal: any;
-    line: number;
+export class Token {
+    constructor(
+        public type: TokenType,
+        public lexeme: string,
+        public literal: any,
+        public line: number
+    ) {}
+
+    toString() {
+        return `${this.type} ${this.lexeme} ${this.literal}`;
+    }
 }
 
 export class Lexer {
@@ -57,28 +83,29 @@ export class Lexer {
     private start = 0;
     private current = 0;
     private line = 1;
-    
+
     private keywords: { [key: string]: TokenType } = {
-        'import': TokenType.IMPORT,
-        'as': TokenType.AS,
-        'from': TokenType.FROM,
-        'app': TokenType.APP,
-        'server': TokenType.SERVER,
-        'component': TokenType.COMPONENT,
-        'page': TokenType.PAGE,
-        'state': TokenType.STATE,
-        'function': TokenType.FUNCTION,
-        'render': TokenType.RENDER,
-        'if': TokenType.IF,
-        'else': TokenType.ELSE,
-        'for': TokenType.FOR,
-        'in': TokenType.IN,
-        'socket': TokenType.SOCKET,
-        'emit': TokenType.EMIT,
-        'on': TokenType.ON,
-        'true': TokenType.TRUE,
-        'false': TokenType.FALSE,
-        'return': TokenType.RETURN
+        "import": TokenType.IMPORT,
+        "from": TokenType.FROM,
+        "as": TokenType.AS,
+        "app": TokenType.APP,
+        "server": TokenType.SERVER,
+        "socket": TokenType.SOCKET,
+        "on": TokenType.ON,
+        "component": TokenType.COMPONENT,
+        "page": TokenType.PAGE,
+        "state": TokenType.STATE,
+        "function": TokenType.FUNCTION,
+        "render": TokenType.RENDER,
+        "if": TokenType.IF,
+        "else": TokenType.ELSE,
+        "for": TokenType.FOR,
+        "in": TokenType.IN,
+        "return": TokenType.RETURN,
+        "true": TokenType.TRUE,
+        "false": TokenType.FALSE,
+        "export": TokenType.EXPORT,
+        "null": TokenType.NULL
     };
 
     constructor(source: string) {
@@ -91,87 +118,72 @@ export class Lexer {
             this.scanToken();
         }
 
-        this.tokens.push({
-            type: TokenType.EOF,
-            lexeme: "",
-            literal: null,
-            line: this.line
-        });
-
+        this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
         return this.tokens;
     }
 
     private scanToken() {
         const c = this.advance();
-        
         switch (c) {
-            case '(': this.addToken(TokenType.LEFT_PAREN); break;
-            case ')': this.addToken(TokenType.RIGHT_PAREN); break;
             case '{': this.addToken(TokenType.LEFT_BRACE); break;
             case '}': this.addToken(TokenType.RIGHT_BRACE); break;
+            case '(': this.addToken(TokenType.LEFT_PAREN); break;
+            case ')': this.addToken(TokenType.RIGHT_PAREN); break;
             case '[': this.addToken(TokenType.LEFT_BRACKET); break;
             case ']': this.addToken(TokenType.RIGHT_BRACKET); break;
-            case ':': this.addToken(TokenType.COLON); break;
-            case ';': this.addToken(TokenType.SEMICOLON); break;
             case ',': this.addToken(TokenType.COMMA); break;
             case '.': this.addToken(TokenType.DOT); break;
-            case '=': 
+            case '-': 
                 if (this.match('>')) {
                     this.addToken(TokenType.ARROW);
-                }
-                break;
-            case '/':
-                if (this.match('/')) {
-                    // Comentário de linha única
-                    let comment = '';
-                    while (this.peek() != '\n' && !this.isAtEnd()) {
-                        comment += this.advance();
-                    }
-                    this.addToken(TokenType.COMMENT, comment.trim());
-                } else if (this.match('*')) {
-                    // Comentário multilinhas
-                    let comment = '';
-                    while (!this.isAtEnd()) {
-                        if (this.peek() == '*' && this.peekNext() == '/') {
-                            this.advance(); // Consome *
-                            this.advance(); // Consome /
-                            break;
-                        }
-                        if (this.peek() == '\n') {
-                            this.line++;
-                            comment += '\n';
-                        } else {
-                            comment += this.advance();
-                        }
-                    }
-                    this.addToken(TokenType.COMMENT, comment.trim());
                 } else {
-                    throw this.error(`Caractere inesperado '${c}'`);
+                    this.addToken(TokenType.MINUS);
                 }
                 break;
+            case '+': this.addToken(TokenType.PLUS); break;
+            case '*': this.addToken(TokenType.MULTIPLY); break;
+            case ':': this.addToken(TokenType.COLON); break;
+            case ';': this.addToken(TokenType.SEMICOLON); break;
+
+            case '!': 
+                this.addToken(this.match('=') ? TokenType.NOT_EQUALS : TokenType.NOT);
+                break;
+            case '=':
+                this.addToken(this.match('=') ? TokenType.EQUALS : TokenType.EQUAL);
+                break;
+            case '<':
+                this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
+                break;
+            case '>':
+                this.addToken(this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+                break;
+
             case ' ':
             case '\r':
             case '\t':
-                // Ignora espaços em branco
                 break;
             case '\n':
                 this.line++;
                 break;
+
             case '"': this.string(); break;
+            case '#': this.color(); break;
+
             default:
                 if (this.isDigit(c)) {
                     this.number();
                 } else if (this.isAlpha(c)) {
                     this.identifier();
                 } else {
-                    throw this.error(`Caractere inesperado '${c}'`);
+                    throw new Error(`Caractere inesperado '${c}' na linha ${this.line}`);
                 }
                 break;
         }
     }
 
     private string() {
-        while (this.peek() !== '"' && !this.isAtEnd()) {
+        const quote = this.source[this.current - 1]; // ' ou "
+        while (this.peek() !== quote && !this.isAtEnd()) {
             if (this.peek() === '\n') this.line++;
             this.advance();
         }
@@ -180,24 +192,51 @@ export class Lexer {
             throw new Error(`String não terminada na linha ${this.line}`);
         }
 
+        // Consumir a aspas de fechamento
         this.advance();
 
+        // Pegar o valor da string sem as aspas
         const value = this.source.substring(this.start + 1, this.current - 1);
         this.addToken(TokenType.STRING, value);
+    }
+
+    private color() {
+        while (this.isHexDigit(this.peek())) this.advance();
+
+        const hex = this.source.substring(this.start + 1, this.current);
+        if (hex.length !== 6) {
+            throw new Error(`Invalid color format at line ${this.line}`);
+        }
+
+        this.addToken(TokenType.COLOR, hex);
     }
 
     private number() {
         while (this.isDigit(this.peek())) this.advance();
 
+        // Parte decimal
         if (this.peek() === '.' && this.isDigit(this.peekNext())) {
-            this.advance();
+            this.advance(); // Consumir o '.'
             while (this.isDigit(this.peek())) this.advance();
         }
 
-        this.addToken(
-            TokenType.NUMBER,
-            parseFloat(this.source.substring(this.start, this.current))
-        );
+        // Check for units
+        if (this.isAlpha(this.peek())) {
+            const start = this.current;
+            while (this.isAlpha(this.peek())) this.advance();
+            const unit = this.source.substring(start, this.current);
+            
+            if (['px', 'em', 'rem', '%', 'vh', 'vw'].includes(unit)) {
+                this.addToken(TokenType.UNIT, {
+                    value: parseFloat(this.source.substring(this.start, start)),
+                    unit: unit
+                });
+                return;
+            }
+        }
+
+        const value = parseFloat(this.source.substring(this.start, this.current));
+        this.addToken(TokenType.NUMBER, value);
     }
 
     private identifier() {
@@ -206,24 +245,6 @@ export class Lexer {
         const text = this.source.substring(this.start, this.current);
         const type = this.keywords[text] || TokenType.IDENTIFIER;
         this.addToken(type);
-    }
-
-    private isAtEnd(): boolean {
-        return this.current >= this.source.length;
-    }
-
-    private advance(): string {
-        return this.source.charAt(this.current++);
-    }
-
-    private addToken(type: TokenType, literal: any = null) {
-        const text = this.source.substring(this.start, this.current);
-        this.tokens.push({
-            type,
-            lexeme: text,
-            literal,
-            line: this.line
-        });
     }
 
     private match(expected: string): boolean {
@@ -244,10 +265,6 @@ export class Lexer {
         return this.source.charAt(this.current + 1);
     }
 
-    private isDigit(c: string): boolean {
-        return c >= '0' && c <= '9';
-    }
-
     private isAlpha(c: string): boolean {
         return (c >= 'a' && c <= 'z') ||
                (c >= 'A' && c <= 'Z') ||
@@ -258,7 +275,26 @@ export class Lexer {
         return this.isAlpha(c) || this.isDigit(c);
     }
 
-    private error(message: string): Error {
-        return new Error(`${message} na linha ${this.line}`);
+    private isDigit(c: string): boolean {
+        return c >= '0' && c <= '9';
+    }
+
+    private isHexDigit(c: string): boolean {
+        return this.isDigit(c) ||
+               (c >= 'a' && c <= 'f') ||
+               (c >= 'A' && c <= 'F');
+    }
+
+    private isAtEnd(): boolean {
+        return this.current >= this.source.length;
+    }
+
+    private advance(): string {
+        return this.source.charAt(this.current++);
+    }
+
+    private addToken(type: TokenType, literal: any = null) {
+        const text = this.source.substring(this.start, this.current);
+        this.tokens.push(new Token(type, text, literal, this.line));
     }
 } 

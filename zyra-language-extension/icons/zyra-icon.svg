@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <circle cx="8" cy="8" r="7.5" fill="#1a1a1a"/>
+    
+    <!-- Outer Ring -->
+    <circle cx="8" cy="8" r="7" fill="none" stroke="#42a5f5" stroke-width="0.5"/>
+    
+    <!-- Z Letter -->
+    <path d="M4 4.5h8l-8 7h8" stroke="#42a5f5" stroke-width="1" fill="none"/>
+    
+    <!-- Decorative Elements -->
+    <circle cx="8" cy="8" r="4" fill="none" stroke="#42a5f5" stroke-width="0.3" opacity="0.5"/>
+    <circle cx="8" cy="8" r="2.5" fill="none" stroke="#42a5f5" stroke-width="0.2" opacity="0.3"/>
+</svg> 

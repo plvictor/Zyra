@@ -1,0 +1,39 @@
+{
+    "name": "zyra-language",
+    "displayName": "Zyra Language",
+    "description": "Language support for Zyra - A modern web development language",
+    "version": "1.0.0",
+    "publisher": "zyra-team",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "zyra",
+            "aliases": ["Zyra", "zyra"],
+            "extensions": [".zy"],
+            "configuration": "./language-configuration.json",
+            "icon": {
+                "light": "./icons/zyra-icon.svg",
+                "dark": "./icons/zyra-icon.svg"
+            }
+        }],
+        "grammars": [{
+            "language": "zyra",
+            "scopeName": "source.zyra",
+            "path": "./syntaxes/zyra.tmLanguage.json"
+        }],
+        "themes": [{
+            "label": "Zyra Dark",
+            "uiTheme": "vs-dark",
+            "path": "./themes/zyra-dark.json"
+        }]
+    },
+    "activationEvents": [
+        "onLanguage:zyra"
+    ],
+    "main": "./extension.js"
+} 

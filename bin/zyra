@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+const { program } = require('commander');
+const chalk = require('chalk');
+const path = require('path');
+const fs = require('fs');
+
+program
+    .version('1.0.0')
+    .description('Zyra Programming Language CLI');
+
+program
+    .command('new <project-name>')
+    .description('Create a new Zyra project')
+    .action((projectName) => {
+        console.log(chalk.blue(`Creating new Zyra project: ${projectName}`));
+        // Project creation logic here
+    });
+
+program
+    .command('run [file]')
+    .description('Run a Zyra file')
+    .option('-w, --watch', 'Watch for changes')
+    .option('-p, --port <port>', 'Specify port number', '3000')
+    .action((file, options) => {
+        const filePath = file || 'src/main.zy';
+        console.log(chalk.blue(`Running ${filePath}...`));
+        // File execution logic here
+    });
+
+program
+    .command('build')
+    .description('Build the Zyra project')
+    .option('-m, --minify', 'Minify output')
+    .option('-s, --sourcemap', 'Generate source maps')
+    .action((options) => {
+        console.log(chalk.blue('Building project...'));
+        // Build logic here
+    });
+
+program
+    .command('serve')
+    .description('Start development server')
+    .option('-p, --port <port>', 'Port number', '3000')
+    .option('-h, --host <host>', 'Host address', 'localhost')
+    .action((options) => {
+        console.log(chalk.blue(`Starting server on ${options.host}:${options.port}...`));
+        // Server logic here
+    });
+
+program
+    .command('install')
+    .description('Install Zyra support for your editors')
+    .action(() => {
+        require('../scripts/install');
+    });
+
+program
+    .command('format')
+    .description('Format Zyra code')
+    .argument('[files...]', 'Files to format')
+    .option('--check', 'Check if files are formatted')
+    .action((files, options) => {
+        console.log(chalk.blue('Formatting code...'));
+        // Format logic here
+    });
+
+program
+    .command('lint')
+    .description('Lint Zyra code')
+    .argument('[files...]', 'Files to lint')
+    .option('--fix', 'Automatically fix problems')
+    .action((files, options) => {
+        console.log(chalk.blue('Linting code...'));
+        // Lint logic here
+    });
+
+program
+    .command('test')
+    .description('Run tests')
+    .option('-w, --watch', 'Watch for changes')
+    .option('--coverage', 'Generate coverage report')
+    .action((options) => {
+        console.log(chalk.blue('Running tests...'));
+        // Test logic here
+    });
+
+program
+    .command('docs')
+    .description('Generate documentation')
+    .option('-o, --output <dir>', 'Output directory', 'docs')
+    .action((options) => {
+        console.log(chalk.blue('Generating documentation...'));
+        // Documentation generation logic here
+    });
+
+program.parse(process.argv); 

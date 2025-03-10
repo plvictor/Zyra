@@ -1,0 +1,29 @@
+{
+    "name": "zyra-lang",
+    "displayName": "Zyra Language",
+    "description": "Suporte para a linguagem Zyra",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "zyra",
+            "aliases": ["Zyra", "zyra"],
+            "extensions": [".zy"],
+            "configuration": "./zyra.language-configuration.json",
+            "icon": {
+                "light": "./icon.svg",
+                "dark": "./icon.svg"
+            }
+        }],
+        "grammars": [{
+            "language": "zyra",
+            "scopeName": "source.zyra",
+            "path": "./syntaxes/zyra.tmLanguage.json"
+        }]
+    }
+} 

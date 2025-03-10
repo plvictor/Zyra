@@ -1,0 +1,88 @@
+component MessageInput {
+    props {
+        onSend: (text: string) => void
+    }
+
+    state {
+        text: ""
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault()
+        if (this.text.trim()) {
+            this.onSend(this.text)
+            this.text = ""
+        }
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            this.handleSubmit(e)
+        }
+    }
+
+    style {
+        .message-input {
+            padding: 20px
+            border-top: 1px solid #eee
+        }
+
+        form {
+            display: flex
+            gap: 10px
+        }
+
+        textarea {
+            flex: 1
+            padding: 12px
+            border: 1px solid #ddd
+            border-radius: 5px
+            resize: none
+            height: 40px
+            font-family: inherit
+            font-size: 14px
+            line-height: 1.4
+        }
+
+        textarea:focus {
+            outline: none
+            border-color: #42a5f5
+        }
+
+        button {
+            padding: 0 20px
+            background: #42a5f5
+            color: white
+            border: none
+            border-radius: 5px
+            cursor: pointer
+            font-weight: bold
+            transition: background 0.2s
+        }
+
+        button:hover {
+            background: #1976d2
+        }
+
+        button:disabled {
+            background: #ccc
+            cursor: not-allowed
+        }
+    }
+
+    render {
+        <div class="message-input">
+            <form onSubmit={handleSubmit}>
+                <textarea
+                    value={text}
+                    onChange={e => this.text = e.target.value}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                />
+                <button type="submit" disabled={!text.trim()}>
+                    Send
+                </button>
+            </form>
+        </div>
+    }
+} 

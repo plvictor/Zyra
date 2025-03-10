@@ -1,42 +1,28 @@
 {
-  "name": "meu-portfolio",
+  "name": "zyra-lang",
   "version": "1.0.0",
-  "description": "Portfolio criado com Zyra",
-  "main": "src/main.zy",
+  "description": "Zyra Programming Language - A modern web development language",
+  "bin": {
+    "zyra": "./bin/zyra"
+  },
   "scripts": {
-    "dev": "zyra dev",
-    "build": "zyra build",
-    "start": "zyra start",
-    "compile": "ts-node src/compiler/core/compile.ts"
+    "postinstall": "node scripts/install.js"
   },
   "keywords": [
+    "zyra",
     "language",
-    "compiler",
-    "websockets",
-    "fullstack",
+    "programming",
     "web",
-    "framework"
+    "development"
   ],
   "author": "Zyra Team",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.21.2",
-    "socket.io": "^4.8.1",
-    "typescript": "^4.9.4",
-    "@zyra/runtime": "^0.1.0",
-    "@zyra/socket": "^0.1.0",
-    "@zyra/dom": "^0.1.0"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^18.19.80",
-    "esbuild": "^0.16.10",
-    "nodemon": "^2.0.22",
-    "ts-node": "^10.9.1",
-    "@zyra/cli": "^0.1.0",
-    "@zyra/compiler": "^0.1.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "glob": "^7.2.0",
+    "node-pty": "^0.10.1",
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.3"
   }
-}
+} 

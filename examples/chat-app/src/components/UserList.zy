@@ -1,0 +1,84 @@
+component UserList {
+    props {
+        users: [],
+        currentUser: null
+    }
+
+    style {
+        .user-list {
+            background: white
+            border-radius: 10px
+            padding: 20px
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1)
+        }
+
+        .user-list-header {
+            font-size: 1.2em
+            font-weight: bold
+            color: #333
+            margin-bottom: 20px
+            padding-bottom: 10px
+            border-bottom: 2px solid #f5f5f5
+        }
+
+        .user {
+            display: flex
+            align-items: center
+            padding: 10px
+            border-radius: 5px
+            margin-bottom: 5px
+        }
+
+        .user.current {
+            background: #e3f2fd
+        }
+
+        .user-avatar {
+            width: 32px
+            height: 32px
+            border-radius: 50%
+            background: #42a5f5
+            color: white
+            display: flex
+            align-items: center
+            justify-content: center
+            margin-right: 10px
+            font-weight: bold
+        }
+
+        .user-name {
+            flex: 1
+            color: #333
+        }
+
+        .user.current .user-name {
+            font-weight: bold
+        }
+    }
+
+    function getInitials(name) {
+        return name.split(" ")
+            .map(part => part[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2)
+    }
+
+    render {
+        <div class="user-list">
+            <div class="user-list-header">
+                Online Users ({users.length})
+            </div>
+            {users.map(user => (
+                <div class={"user " + (user.id === currentUser.id ? "current" : "")}>
+                    <div class="user-avatar">
+                        {getInitials(user.name)}
+                    </div>
+                    <div class="user-name">
+                        {user.name}
+                    </div>
+                </div>
+            ))}
+        </div>
+    }
+} 

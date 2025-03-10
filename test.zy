@@ -1,0 +1,30 @@
+component TesteSite {
+  state {
+    titulo: "Meu Primeiro Site em Zyra"
+    contador: 0
+  }
+
+  style {
+    cor: #4287f5
+    fundo: #ffffff
+    tamanho: 2em
+  }
+
+  interface {
+    Cabecalho {
+      texto: titulo
+      cor: cor
+    }
+
+    Botao {
+      texto: "Clique aqui!"
+      acao: incrementar
+    }
+  }
+
+  eventos {
+    incrementar -> {
+      contador += 1
+    }
+  }
+} 
