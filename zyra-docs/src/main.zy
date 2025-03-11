@@ -1,0 +1,1032 @@
+// Zyra Documentation Website
+// A comprehensive guide to the Zyra programming language
+
+// Theme configuration
+theme ZyraTheme {
+  primary-color: #6200ee;
+  secondary-color: #03dac6;
+  background-color: #ffffff;
+  text-color: #333333;
+  accent-color: #ff6b6b;
+  font-family: "Inter", sans-serif;
+  border-radius: 8px;
+  
+  dark {
+    background-color: #121212;
+    text-color: #e0e0e0;
+    primary-color: #bb86fc;
+    secondary-color: #03dac5;
+  }
+}
+
+// Global state management
+store AppState {
+  state currentSection: string = "introduction";
+  state isDarkMode: boolean = false;
+  state showSidebar: boolean = true;
+  state language: string = "en";
+  
+  // Navigation actions
+  action navigateTo(section: string) {
+    this.currentSection = section;
+    window.scrollTo(0, 0);
+  }
+  
+  // Theme actions
+  action toggleDarkMode() {
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle("dark-theme", this.isDarkMode);
+    localStorage.setItem("darkMode", this.isDarkMode.toString());
+  }
+  
+  // Sidebar actions
+  action toggleSidebar() {
+    this.showSidebar = !this.showSidebar;
+  }
+  
+  // Language actions
+  action setLanguage(lang: string) {
+    this.language = lang;
+    localStorage.setItem("language", lang);
+  }
+  
+  // Initialization
+  function init() {
+    // Load saved preferences
+    const savedDarkMode = localStorage.getItem("darkMode") === "true";
+    this.isDarkMode = savedDarkMode;
+    document.body.classList.toggle("dark-theme", savedDarkMode);
+    
+    // Check for system preference if no saved preference
+    if (localStorage.getItem("darkMode") === null) {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      this.isDarkMode = prefersDark;
+      document.body.classList.toggle("dark-theme", prefersDark);
+    }
+    
+    // Check for saved language
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage) {
+      this.language = savedLanguage;
+    }
+  }
+}
+
+// Main website component
+component ZyraDocumentation {
+  inject store: AppState;
+  
+  state mobileMenuOpen: boolean = false;
+  
+  function toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+  
+  onMount() {
+    // Initialize state
+    store.init();
+    
+    // Add scroll listener for header
+    window.addEventListener("scroll", () => {
+      const header = document.querySelector("header");
+      if (header) {
+        if (window.scrollY > 20) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
+    });
+  }
+  
+  render {
+    <div class="zyra-documentation ${store.isDarkMode ? 'dark-theme' : 'light-theme'}">
+      <header>
+        <div class="logo">
+          <img src="https://via.placeholder.com/50x50" alt="Zyra Logo" />
+          <h1>Zyra</h1>
+        </div>
+        
+        <nav class="desktop-nav">
+          <a href="#introduction" 
+             class="${store.currentSection === 'introduction' ? 'active' : ''}"
+             onClick={() => store.navigateTo('introduction')}>
+            Introduction
+          </a>
+          <a href="#getting-started" 
+             class="${store.currentSection === 'getting-started' ? 'active' : ''}"
+             onClick={() => store.navigateTo('getting-started')}>
+            Getting Started
+          </a>
+          <a href="#components" 
+             class="${store.currentSection === 'components' ? 'active' : ''}"
+             onClick={() => store.navigateTo('components')}>
+            Components
+          </a>
+          <a href="#state" 
+             class="${store.currentSection === 'state' ? 'active' : ''}"
+             onClick={() => store.navigateTo('state')}>
+            State
+          </a>
+          <a href="#styles" 
+             class="${store.currentSection === 'styles' ? 'active' : ''}"
+             onClick={() => store.navigateTo('styles')}>
+            Styles
+          </a>
+          <a href="#apis" 
+             class="${store.currentSection === 'apis' ? 'active' : ''}"
+             onClick={() => store.navigateTo('apis')}>
+            APIs
+          </a>
+          <a href="#examples" 
+             class="${store.currentSection === 'examples' ? 'active' : ''}"
+             onClick={() => store.navigateTo('examples')}>
+            Examples
+          </a>
+        </nav>
+        
+        <div class="header-actions">
+          <button class="theme-toggle" onClick={() => store.toggleDarkMode()}>
+            ${store.isDarkMode ? '☀️' : '🌙'}
+          </button>
+          <button class="language-toggle">
+            ${store.language === 'en' ? '🇺🇸' : '🇧🇷'}
+          </button>
+          <button class="mobile-menu-toggle" onClick={() => this.toggleMobileMenu()}>
+            ☰
+          </button>
+        </div>
+      </header>
+      
+      <div class="mobile-menu ${this.mobileMenuOpen ? 'open' : ''}">
+        <a href="#introduction" onClick={() => {
+          store.navigateTo('introduction');
+          this.toggleMobileMenu();
+        }}>Introduction</a>
+        <a href="#getting-started" onClick={() => {
+          store.navigateTo('getting-started');
+          this.toggleMobileMenu();
+        }}>Getting Started</a>
+        <a href="#components" onClick={() => {
+          store.navigateTo('components');
+          this.toggleMobileMenu();
+        }}>Components</a>
+        <a href="#state" onClick={() => {
+          store.navigateTo('state');
+          this.toggleMobileMenu();
+        }}>State</a>
+        <a href="#styles" onClick={() => {
+          store.navigateTo('styles');
+          this.toggleMobileMenu();
+        }}>Styles</a>
+        <a href="#apis" onClick={() => {
+          store.navigateTo('apis');
+          this.toggleMobileMenu();
+        }}>APIs</a>
+        <a href="#examples" onClick={() => {
+          store.navigateTo('examples');
+          this.toggleMobileMenu();
+        }}>Examples</a>
+      </div>
+      
+      <main>
+        <div class="hero">
+          <h1>The Modern Web Development Language</h1>
+          <p>Zyra is a powerful, intuitive programming language designed specifically for creating responsive, elegant web applications.</p>
+          <div class="hero-actions">
+            <button class="primary" onClick={() => store.navigateTo('getting-started')}>Get Started</button>
+            <button class="secondary" onClick={() => store.navigateTo('examples')}>See Examples</button>
+          </div>
+        </div>
+        
+        <section id="introduction" class="${store.currentSection === 'introduction' ? 'active' : ''}">
+          <h2>Introduction to Zyra</h2>
+          <p>Zyra is a modern programming language specifically designed for web development. It combines the best aspects of TypeScript, React, and CSS into a single, cohesive language that makes building interactive web applications simpler and more intuitive.</p>
+          
+          <div class="feature-grid">
+            <div class="feature-card">
+              <h3>Type Safety</h3>
+              <p>Built-in type system ensures your code is robust and prevents common errors.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Component-Based</h3>
+              <p>Create reusable, modular components to build complex interfaces.</p>
+            </div>
+            <div class="feature-card">
+              <h3>State Management</h3>
+              <p>Integrated state management with actions and derived values.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Styling</h3>
+              <p>Built-in styling system with themes and responsive design.</p>
+            </div>
+            <div class="feature-card">
+              <h3>API Integration</h3>
+              <p>First-class support for defining and consuming APIs.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Modern Tooling</h3>
+              <p>Comprehensive CLI, testing tools, and editor support.</p>
+            </div>
+          </div>
+          
+          <div class="code-example">
+            <h3>Example: Hello World</h3>
+            <pre><code>
+// Hello World in Zyra
+component HelloWorld {
+  state name: string = "World";
+  
+  render {
+    <div class="hello">
+      <h1>Hello, {name}!</h1>
+      <input 
+        value={name}
+        onChange={e => this.name = e.target.value}
+        placeholder="Enter your name"
+      />
+    </div>
+  }
+}
+
+// Start the application
+new HelloWorld();
+            </code></pre>
+          </div>
+        </section>
+        
+        <section id="getting-started" class="${store.currentSection === 'getting-started' ? 'active' : ''}">
+          <h2>Getting Started with Zyra</h2>
+          
+          <h3>Installation</h3>
+          <p>Installing Zyra is simple. You can use npm to install it globally:</p>
+          <pre><code>npm install -g zyra-lang</code></pre>
+          
+          <h3>Creating a New Project</h3>
+          <p>Once installed, you can create a new Zyra project using the CLI:</p>
+          <pre><code>zyra new my-project
+cd my-project
+npm install
+npm run dev</code></pre>
+          
+          <h3>Project Structure</h3>
+          <p>A typical Zyra project has the following structure:</p>
+          <pre><code>my-project/
+├── public/          # Static assets
+├── src/             # Source code
+│   ├── components/  # Reusable components
+│   ├── main.zy      # Main application entry point
+├── package.json     # Dependencies and scripts
+├── zyra.config.js   # Zyra configuration</code></pre>
+          
+          <h3>Development Server</h3>
+          <p>Start the development server with:</p>
+          <pre><code>npm run dev</code></pre>
+          <p>This will start a development server on http://localhost:3000 with hot reloading.</p>
+          
+          <h3>Building for Production</h3>
+          <p>Build your project for production with:</p>
+          <pre><code>npm run build</code></pre>
+          <p>This will create optimized files in the dist directory ready for deployment.</p>
+        </section>
+        
+        <section id="components" class="${store.currentSection === 'components' ? 'active' : ''}">
+          <h2>Components in Zyra</h2>
+          
+          <p>Components are the building blocks of Zyra applications. They encapsulate UI elements, state, and behavior in reusable packages.</p>
+          
+          <h3>Basic Component Structure</h3>
+          <pre><code>
+component Button {
+  prop text: string;
+  prop onClick: Function;
+  prop variant: "primary" | "secondary" = "primary";
+  
+  state isHovered: boolean = false;
+  
+  function handleMouseEnter() {
+    this.isHovered = true;
+  }
+  
+  function handleMouseLeave() {
+    this.isHovered = false;
+  }
+  
+  render {
+    <button 
+      class="button {variant} {isHovered ? 'hovered' : ''}"
+      onClick={onClick}
+      onMouseEnter={() => this.handleMouseEnter()}
+      onMouseLeave={() => this.handleMouseLeave()}
+    >
+      {text}
+    </button>
+  }
+}
+          </code></pre>
+          
+          <h3>Using Components</h3>
+          <pre><code>
+component App {
+  function handleClick() {
+    console.log("Button clicked!");
+  }
+  
+  render {
+    <div class="app">
+      <Button 
+        text="Click me!"
+        variant="primary"
+        onClick={() => this.handleClick()}
+      />
+    </div>
+  }
+}
+          </code></pre>
+          
+          <h3>Lifecycle Hooks</h3>
+          <p>Zyra components have several lifecycle hooks:</p>
+          <ul>
+            <li><code>onMount</code>: Called when the component is added to the DOM</li>
+            <li><code>onUpdate</code>: Called when the component's state or props change</li>
+            <li><code>onDestroy</code>: Called when the component is removed from the DOM</li>
+          </ul>
+          
+          <h3>Component Composition</h3>
+          <p>Zyra supports component composition through children props:</p>
+          <pre><code>
+component Card {
+  prop title: string;
+  prop children: any;
+  
+  render {
+    <div class="card">
+      <div class="card-header">
+        <h2>{title}</h2>
+      </div>
+      <div class="card-body">
+        {children}
+      </div>
+    </div>
+  }
+}
+
+component App {
+  render {
+    <Card title="Welcome">
+      <p>This is a card component with children.</p>
+      <button>Learn More</button>
+    </Card>
+  }
+}
+          </code></pre>
+        </section>
+        
+        <section id="state" class="${store.currentSection === 'state' ? 'active' : ''}">
+          <h2>State Management in Zyra</h2>
+          
+          <p>Zyra provides powerful state management capabilities at both the component level and application level.</p>
+          
+          <h3>Component State</h3>
+          <pre><code>
+component Counter {
+  state count: number = 0;
+  
+  function increment() {
+    this.count++;
+  }
+  
+  function decrement() {
+    this.count--;
+  }
+  
+  render {
+    <div class="counter">
+      <button onClick={() => this.decrement()}>-</button>
+      <span>{count}</span>
+      <button onClick={() => this.increment()}>+</button>
+    </div>
+  }
+}
+          </code></pre>
+          
+          <h3>Global State with Stores</h3>
+          <pre><code>
+// Define a global store
+store UserStore {
+  state user: Optional<User> = null;
+  state isLoading: boolean = false;
+  state error: Optional<string> = null;
+  
+  action login(credentials: Credentials): Promise<boolean> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      const user = await api.login(credentials);
+      this.user = user;
+      return true;
+    } catch (error) {
+      this.error = error.message;
+      return false;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
+  action logout() {
+    this.user = null;
+    api.logout();
+  }
+}
+
+// Use the store in a component
+component LoginForm {
+  inject userStore: UserStore;
+  
+  state email: string = "";
+  state password: string = "";
+  
+  async function handleSubmit(e: Event) {
+    e.preventDefault();
+    await userStore.login({ email: this.email, password: this.password });
+  }
+  
+  render {
+    <form onSubmit={e => this.handleSubmit(e)}>
+      <input
+        type="email"
+        value={email}
+        onChange={e => this.email = e.target.value}
+        placeholder="Email"
+        required
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={e => this.password = e.target.value}
+        placeholder="Password"
+        required
+      />
+      <button type="submit" disabled={userStore.isLoading}>
+        {userStore.isLoading ? "Loading..." : "Login"}
+      </button>
+      {userStore.error && <p class="error">{userStore.error}</p>}
+    </form>
+  }
+}
+          </code></pre>
+          
+          <h3>Derived State</h3>
+          <p>Zyra allows you to define derived state that automatically updates when the underlying state changes:</p>
+          <pre><code>
+component ProductList {
+  prop products: Array<Product>;
+  prop filter: string = "";
+  
+  // Derived state
+  get filteredProducts(): Array<Product> {
+    return this.products.filter(product =>
+      product.name.toLowerCase().includes(this.filter.toLowerCase())
+    );
+  }
+  
+  get totalPrice(): number {
+    return this.filteredProducts.reduce(
+      (sum, product) => sum + product.price, 
+      0
+    );
+  }
+  
+  render {
+    <div class="product-list">
+      <input
+        value={filter}
+        onChange={e => this.filter = e.target.value}
+        placeholder="Filter products..."
+      />
+      <p>Total: ${totalPrice.toFixed(2)}</p>
+      <div class="products">
+        {filteredProducts.map(product => (
+          <div class="product">
+            <h3>{product.name}</h3>
+            <p>${product.price.toFixed(2)}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  }
+}
+          </code></pre>
+        </section>
+        
+        <section id="styles" class="${store.currentSection === 'styles' ? 'active' : ''}">
+          <h2>Styling in Zyra</h2>
+          
+          <p>Zyra has a powerful built-in styling system that combines the best aspects of CSS-in-JS and traditional CSS.</p>
+          
+          <h3>Theme Definition</h3>
+          <pre><code>
+theme AppTheme {
+  primary-color: #6200ee;
+  secondary-color: #03dac6;
+  background-color: #f5f5f5;
+  text-color: #121212;
+  
+  // Typography
+  font-family: "Inter", sans-serif;
+  heading-font-family: "Montserrat", sans-serif;
+  
+  // Spacing
+  spacing-unit: 4px;
+  
+  // Breakpoints
+  tablet: 768px;
+  desktop: 1024px;
+  
+  // Dark theme variant
+  dark {
+    background-color: #121212;
+    text-color: #e0e0e0;
+    primary-color: #bb86fc;
+    secondary-color: #03dac5;
+  }
+}
+          </code></pre>
+          
+          <h3>Inline Styles</h3>
+          <pre><code>
+component StyledButton {
+  render {
+    <button style={{
+      backgroundColor: "#6200ee",
+      color: "white",
+      padding: "8px 16px",
+      borderRadius: "4px",
+      border: "none",
+      cursor: "pointer"
+    }}>
+      Click Me
+    </button>
+  }
+}
+          </code></pre>
+          
+          <h3>Styled Components</h3>
+          <pre><code>
+style Button {
+  background-color: ${theme.primary-color};
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+  
+  // Variants
+  &.secondary {
+    background-color: ${theme.secondary-color};
+  }
+  
+  &.outlined {
+    background-color: transparent;
+    border: 1px solid ${theme.primary-color};
+    color: ${theme.primary-color};
+  }
+  
+  // Responsive styles
+  @media (max-width: ${theme.tablet}) {
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+}
+
+component App {
+  render {
+    <div>
+      <button class="Button">Primary</button>
+      <button class="Button secondary">Secondary</button>
+      <button class="Button outlined">Outlined</button>
+    </div>
+  }
+}
+          </code></pre>
+          
+          <h3>Global Styles</h3>
+          <pre><code>
+style Global {
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: ${theme.font-family};
+    background-color: ${theme.background-color};
+    color: ${theme.text-color};
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: ${theme.heading-font-family};
+    margin-top: ${theme.spacing-unit * 6}px;
+    margin-bottom: ${theme.spacing-unit * 4}px;
+  }
+  
+  a {
+    color: ${theme.primary-color};
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+          </code></pre>
+        </section>
+        
+        <section id="apis" class="${store.currentSection === 'apis' ? 'active' : ''}">
+          <h2>APIs in Zyra</h2>
+          
+          <p>Zyra provides first-class support for defining and consuming APIs.</p>
+          
+          <h3>Defining API Routes</h3>
+          <pre><code>
+api {
+  route "/api/users" {
+    get() {
+      const users = await db.User.findAll();
+      return users;
+    }
+    
+    get("/:id") {
+      const { id } = request.params;
+      const user = await db.User.findById(id);
+      
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+      
+      return user;
+    }
+    
+    @authorize("admin")
+    post() {
+      const data = request.body;
+      const user = await db.User.create(data);
+      return user;
+    }
+    
+    @authorize("admin")
+    put("/:id") {
+      const { id } = request.params;
+      const data = request.body;
+      const user = await db.User.findById(id);
+      
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+      
+      await user.update(data);
+      return user;
+    }
+    
+    @authorize("admin")
+    delete("/:id") {
+      const { id } = request.params;
+      const user = await db.User.findById(id);
+      
+      if (!user) {
+        throw new NotFoundError("User not found");
+      }
+      
+      await user.delete();
+      return { success: true };
+    }
+  }
+}
+          </code></pre>
+          
+          <h3>Consuming APIs</h3>
+          <pre><code>
+component UserList {
+  state users: Array<User> = [];
+  state isLoading: boolean = true;
+  state error: Optional<string> = null;
+  
+  async function fetchUsers() {
+    try {
+      this.isLoading = true;
+      this.error = null;
+      
+      const response = await fetch("/api/users");
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+      
+      const data = await response.json();
+      this.users = data;
+    } catch (error) {
+      this.error = error.message;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
+  onMount() {
+    this.fetchUsers();
+  }
+  
+  render {
+    <div class="user-list">
+      <h2>Users</h2>
+      
+      {isLoading && <p>Loading...</p>}
+      {error && <p class="error">{error}</p>}
+      
+      {!isLoading && !error && (
+        <div class="users">
+          {users.map(user => (
+            <div class="user-card">
+              <h3>{user.name}</h3>
+              <p>{user.email}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  }
+}
+          </code></pre>
+          
+          <h3>API Client Generation</h3>
+          <p>Zyra can automatically generate TypeScript clients for your APIs:</p>
+          <pre><code>
+// Generated API client
+const usersApi = {
+  getAll: async () => {
+    const response = await fetch("/api/users");
+    if (!response.ok) throw new Error("Failed to fetch users");
+    return response.json();
+  },
+  
+  getById: async (id: string) => {
+    const response = await fetch(`/api/users/${id}`);
+    if (!response.ok) throw new Error("Failed to fetch user");
+    return response.json();
+  },
+  
+  create: async (user: CreateUserDto) => {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    });
+    if (!response.ok) throw new Error("Failed to create user");
+    return response.json();
+  },
+  
+  update: async (id: string, user: UpdateUserDto) => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    });
+    if (!response.ok) throw new Error("Failed to update user");
+    return response.json();
+  },
+  
+  delete: async (id: string) => {
+    const response = await fetch(`/api/users/${id}`, {
+      method: "DELETE"
+    });
+    if (!response.ok) throw new Error("Failed to delete user");
+    return response.json();
+  }
+};
+          </code></pre>
+        </section>
+        
+        <section id="examples" class="${store.currentSection === 'examples' ? 'active' : ''}">
+          <h2>Zyra Examples</h2>
+          
+          <div class="example-cards">
+            <div class="example-card">
+              <h3>Todo App</h3>
+              <p>A simple todo application demonstrating state management and components.</p>
+              <pre><code>
+component TodoApp {
+  state todos: Array<Todo> = [];
+  state newTodoText: string = "";
+  
+  function addTodo() {
+    if (!this.newTodoText.trim()) return;
+    
+    this.todos = [
+      ...this.todos,
+      {
+        id: Date.now().toString(),
+        text: this.newTodoText,
+        completed: false
+      }
+    ];
+    
+    this.newTodoText = "";
+  }
+  
+  function toggleTodo(id: string) {
+    this.todos = this.todos.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    );
+  }
+  
+  function deleteTodo(id: string) {
+    this.todos = this.todos.filter(todo => todo.id !== id);
+  }
+  
+  render {
+    <div class="todo-app">
+      <h1>Todo App</h1>
+      
+      <div class="add-todo">
+        <input
+          value={newTodoText}
+          onChange={e => this.newTodoText = e.target.value}
+          onKeyPress={e => e.key === "Enter" && this.addTodo()}
+          placeholder="Add a new todo..."
+        />
+        <button onClick={() => this.addTodo()}>Add</button>
+      </div>
+      
+      <ul class="todo-list">
+        {todos.map(todo => (
+          <li class="todo-item ${todo.completed ? 'completed' : ''}">
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => this.toggleTodo(todo.id)}
+            />
+            <span>{todo.text}</span>
+            <button onClick={() => this.deleteTodo(todo.id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  }
+}
+              </code></pre>
+            </div>
+            
+            <div class="example-card">
+              <h3>Weather App</h3>
+              <p>A weather application demonstrating API integration and async operations.</p>
+              <pre><code>
+component WeatherApp {
+  state city: string = "London";
+  state weather: Optional<WeatherData> = null;
+  state isLoading: boolean = false;
+  state error: Optional<string> = null;
+  
+  async function fetchWeather() {
+    if (!this.city.trim()) return;
+    
+    try {
+      this.isLoading = true;
+      this.error = null;
+      
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=YOUR_API_KEY&units=metric`
+      );
+      
+      if (!response.ok) {
+        throw new Error("City not found");
+      }
+      
+      const data = await response.json();
+      this.weather = {
+        city: data.name,
+        country: data.sys.country,
+        temperature: data.main.temp,
+        description: data.weather[0].description,
+        icon: data.weather[0].icon,
+        humidity: data.main.humidity,
+        wind: data.wind.speed
+      };
+    } catch (error) {
+      this.error = error.message;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
+  onMount() {
+    this.fetchWeather();
+  }
+  
+  render {
+    <div class="weather-app">
+      <h1>Weather App</h1>
+      
+      <div class="search">
+        <input
+          value={city}
+          onChange={e => this.city = e.target.value}
+          onKeyPress={e => e.key === "Enter" && this.fetchWeather()}
+          placeholder="Enter city name..."
+        />
+        <button 
+          onClick={() => this.fetchWeather()}
+          disabled={isLoading}
+        >
+          Search
+        </button>
+      </div>
+      
+      {isLoading && <p>Loading...</p>}
+      {error && <p class="error">{error}</p>}
+      
+      {weather && !isLoading && !error && (
+        <div class="weather-card">
+          <h2>{weather.city}, {weather.country}</h2>
+          <div class="weather-info">
+            <img 
+              src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+              alt={weather.description}
+            />
+            <div class="temperature">{Math.round(weather.temperature)}°C</div>
+            <div class="description">{weather.description}</div>
+          </div>
+          <div class="details">
+            <div class="detail">
+              <span class="label">Humidity</span>
+              <span class="value">{weather.humidity}%</span>
+            </div>
+            <div class="detail">
+              <span class="label">Wind</span>
+              <span class="value">{weather.wind} m/s</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  }
+}
+              </code></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+      
+      <footer>
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Zyra</h3>
+            <p>The modern web development language</p>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Resources</h3>
+            <ul>
+              <li><a href="#documentation">Documentation</a></li>
+              <li><a href="#tutorials">Tutorials</a></li>
+              <li><a href="#examples">Examples</a></li>
+              <li><a href="#api-reference">API Reference</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Community</h3>
+            <ul>
+              <li><a href="#github">GitHub</a></li>
+              <li><a href="#discord">Discord</a></li>
+              <li><a href="#twitter">Twitter</a></li>
+              <li><a href="#stackoverflow">Stack Overflow</a></li>
+            </ul>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Legal</h3>
+            <ul>
+              <li><a href="#terms">Terms of Service</a></li>
+              <li><a href="#privacy">Privacy Policy</a></li>
+              <li><a href="#license">License</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} Zyra Team. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  }
+}
+
+// Start the application
+new ZyraDocumentation(); 

@@ -1,186 +1,186 @@
-# Especificação da Linguagem Zyra
+# Zyra Language Specification
 
-## Introdução
+## Introduction
 
-Zyra é uma linguagem de programação concebida para simplificar o desenvolvimento web full-stack com comunicação em tempo real através de WebSockets nativos e um sistema de design inovador que elimina a necessidade de CSS tradicional.
+Zyra is a modern programming language designed to simplify full-stack web development with native WebSocket communication and an innovative design system that eliminates the need for traditional CSS.
 
-## Sistema de Tipos Avançado
+## Advanced Type System
 
-### Tipos Básicos
+### Basic Types
 
 ```zyra
-// Tipos primitivos
-let texto: text = "Olá";
-let numero: number = 42;
-let booleano: boolean = true;
+// Primitive types
+let text: string = "Hello";
+let number: number = 42;
+let boolean: boolean = true;
 let decimal: float = 3.14;
 
-// Tipos compostos
-let lista: list<number> = [1, 2, 3];
-let mapa: map<text, any> = {
-  nome: "João",
-  idade: 30
+// Compound types
+let list: Array<number> = [1, 2, 3];
+let map: Map<string, any> = {
+  name: "John",
+  age: 30
 };
 
-// Tipos opcionais
-let opcional: optional<text> = null;
+// Optional types
+let optional: Optional<string> = null;
 ```
 
-### Tipos Personalizados
+### Custom Types
 
 ```zyra
-// Tipo personalizado
-type Ponto = {
+// Custom type
+type Point = {
   x: number;
   y: number;
-  z: optional<number>;
+  z: Optional<number>;
 };
 
-// Tipo união
-type Resultado = Success | Error;
+// Union type
+type Result = Success | Error;
 
 type Success = {
   ok: true;
-  dados: any;
+  data: any;
 };
 
 type Error = {
   ok: false;
-  erro: text;
+  error: string;
 };
 
-// Tipo genérico
-type Lista<T> = {
-  itens: list<T>;
-  tamanho: number;
+// Generic type
+type List<T> = {
+  items: Array<T>;
+  size: number;
   
-  function adicionar(item: T);
-  function remover(indice: number): optional<T>;
+  function add(item: T);
+  function remove(index: number): Optional<T>;
 };
 ```
 
-### Inferência de Tipos
+### Type Inference
 
-Zyra possui um sistema de inferência de tipos poderoso:
+Zyra has a powerful type inference system:
 
 ```zyra
-// O tipo é inferido automaticamente
-let nome = "João";        // text
-let idade = 30;          // number
-let ativo = true;        // boolean
-let lista = [1, 2, 3];   // list<number>
+// Type is automatically inferred
+let name = "John";        // string
+let age = 30;             // number
+let active = true;        // boolean
+let list = [1, 2, 3];     // Array<number>
 
-// Inferência em funções
-function somar(a, b) {    // Tipos inferidos como number
+// Inference in functions
+function sum(a, b) {      // Types inferred as number
   return a + b;
 }
 
-// Inferência em componentes
-component Botao {
-  prop texto = "Clique";  // Inferido como text
-  prop onClick;           // Inferido como function
+// Inference in components
+component Button {
+  prop text = "Click";    // Inferred as string
+  prop onClick;           // Inferred as function
 }
 ```
 
-## Programação Concorrente
+## Concurrent Programming
 
-### Canais de Comunicação
+### Communication Channels
 
 ```zyra
-// Definir um canal tipado
-channel NotificacaoCanal<T> {
-  // Eventos do canal
-  event nova(mensagem: T);
-  event lida(id: uuid);
-  event apagada(id: uuid);
+// Define a typed channel
+channel NotificationChannel<T> {
+  // Channel events
+  event new(message: T);
+  event read(id: UUID);
+  event deleted(id: UUID);
 }
 
-// Usar o canal
-component Notificacoes {
-  // Criar instância do canal
-  let canal = new NotificacaoCanal<{
-    id: uuid;
-    texto: text;
-    tipo: "info" | "erro" | "sucesso";
+// Use the channel
+component Notifications {
+  // Create channel instance
+  let channel = new NotificationChannel<{
+    id: UUID;
+    text: string;
+    type: "info" | "error" | "success";
   }>();
   
   onMount() {
-    // Escutar eventos
-    canal.on("nova", (msg) => {
-      // Processar nova notificação
+    // Listen to events
+    channel.on("new", (msg) => {
+      // Process new notification
     });
   }
   
-  function enviar() {
-    // Emitir evento
-    canal.emit("nova", {
-      id: uuid(),
-      texto: "Nova notificação",
-      tipo: "info"
+  function send() {
+    // Emit event
+    channel.emit("new", {
+      id: UUID.generate(),
+      text: "New notification",
+      type: "info"
     });
   }
 }
 ```
 
-### Workers e Processamento Paralelo
+### Workers and Parallel Processing
 
 ```zyra
-// Definir um worker
-worker Processador {
-  // Estado do worker
-  state ocupado = false;
+// Define a worker
+worker Processor {
+  // Worker state
+  state busy = false;
   
-  // Função executada em background
-  function processar(dados: list<number>): list<number> {
-    ocupado = true;
+  // Function executed in background
+  function process(data: Array<number>): Array<number> {
+    busy = true;
     
-    // Processamento pesado
-    let resultado = dados.map((n) => {
+    // Heavy processing
+    let result = data.map((n) => {
       return fibonacci(n);
     });
     
-    ocupado = false;
-    return resultado;
+    busy = false;
+    return result;
   }
 }
 
-// Usar o worker
+// Use the worker
 component App {
-  // Criar instância do worker
-  let worker = new Processador();
+  // Create worker instance
+  let worker = new Processor();
   
-  async function calcular() {
-    // Executar em background
-    let resultado = await worker.processar([40, 41, 42]);
-    console.log(resultado);
+  async function calculate() {
+    // Execute in background
+    let result = await worker.process([40, 41, 42]);
+    console.log(result);
   }
 }
 ```
 
-## Sistema de Design Avançado
+## Advanced Design System
 
-### Temas Dinâmicos
+### Dynamic Themes
 
 ```zyra
-// Definir tema
-theme Principal {
-  // Cores
+// Define theme
+theme Main {
+  // Colors
   colors {
     primary: "#2a6bcc";
     secondary: "#4dabf5";
     background: "#f5f5f5";
     text: "#333333";
     
-    // Variantes
-    primary-light: lighten($primary, 20%);
-    primary-dark: darken($primary, 20%);
+    // Variants
+    primaryLight: lighten($primary, 20%);
+    primaryDark: darken($primary, 20%);
   }
   
-  // Tipografia
+  // Typography
   typography {
     family: "Roboto, sans-serif";
     
-    // Escalas de tamanho
+    // Size scales
     scale {
       small: 12px;
       base: 16px;
@@ -188,7 +188,7 @@ theme Principal {
       xlarge: 24px;
     }
     
-    // Pesos
+    // Weights
     weights {
       light: 300;
       regular: 400;
@@ -196,7 +196,7 @@ theme Principal {
     }
   }
   
-  // Espaçamento
+  // Spacing
   spacing {
     unit: 8px;
     small: $unit;
@@ -204,7 +204,7 @@ theme Principal {
     large: $unit * 3;
   }
   
-  // Animações
+  // Animations
   animations {
     duration: 200ms;
     easing: "ease-in-out";
@@ -217,100 +217,101 @@ theme Principal {
   }
 }
 
-// Usar tema em componentes
-component Botao {
+// Use theme in components
+component Button {
   prop variant = "primary";
   
   render {
-    button {
-      // Usar variáveis do tema
-      background: $theme.colors[variant];
-      padding: [$theme.spacing.small, $theme.spacing.medium];
-      font: $theme.typography.base;
-      
-      // Animações
-      animate: $theme.animations.fadeIn;
-      
-      // Estados
-      hover {
-        background: $theme.colors[variant + "-light"];
-      }
-    }
+    <button 
+      style={{
+        // Use theme variables
+        background: $theme.colors[variant],
+        padding: [$theme.spacing.small, $theme.spacing.medium],
+        font: $theme.typography.base,
+        
+        // Animations
+        animation: $theme.animations.fadeIn,
+      }}
+      hover={{
+        background: $theme.colors[variant + "Light"]
+      }}
+    >
+      {children}
+    </button>
   }
 }
 ```
 
-### Layouts Responsivos
+### Responsive Layouts
 
 ```zyra
 component Card {
   render {
-    container {
-      // Layout responsivo
-      responsive {
+    <container 
+      // Responsive layout
+      responsive={{
         // Mobile
-        base {
-          width: 100%;
-          margin: 10;
-        }
+        base: {
+          width: "100%",
+          margin: 10
+        },
         
         // Tablet
-        md {
-          width: 50%;
-          margin: 15;
-        }
+        md: {
+          width: "50%",
+          margin: 15
+        },
         
         // Desktop
-        lg {
-          width: 33.33%;
-          margin: 20;
+        lg: {
+          width: "33.33%",
+          margin: 20
         }
-      }
-      
-      // Grid automático
-      grid {
-        columns: [1, 2, 3]; // Responsivo: 1 coluna mobile, 2 tablet, 3 desktop
-        gap: 20;
-        
-        // Itens do grid
-        for (item in items) {
-          gridItem {
-            // Ocupar múltiplas células
-            span: [1, 1, 2]; // Responsivo
-            
-            // Conteúdo
-            content {
+      }}
+    >
+      // Auto grid
+      <grid 
+        columns={[1, 2, 3]} // Responsive: 1 column mobile, 2 tablet, 3 desktop
+        gap={20}
+      >
+        // Grid items
+        {items.map(item => (
+          <gridItem
+            // Span multiple cells
+            span={[1, 1, 2]} // Responsive
+          >
+            <content>
               // ...
-            }
-          }
-        }
-      }
-    }
+            </content>
+          </gridItem>
+        ))}
+      </grid>
+    </container>
   }
 }
 ```
 
-## Gerenciamento de Estado
+## State Management
 
-### Store Global
+### Global Store
 
 ```zyra
-// Definir store
+// Define store
 store AppStore {
-  // Estado
-  state user: optional<User> = null;
+  // State
+  state user: Optional<User> = null;
   state theme: "light" | "dark" = "light";
-  state notifications: list<Notification> = [];
+  state notifications: Array<Notification> = [];
   
-  // Ações
+  // Actions
   action login(credentials: Credentials) {
-    // Validar credenciais
+    // Validate credentials
     let user = await auth.login(credentials);
     
-    // Atualizar estado
+    // Update state
     this.user = user;
     
-    // Emitir evento
+    // Emit event
     emit("userLoggedIn", user);
   }
   
@@ -326,53 +327,51 @@ store AppStore {
   
   // Watchers
   watch("user", (newUser, oldUser) => {
-    // Reagir a mudanças
+    // React to changes
     if (newUser) {
       loadUserPreferences(newUser);
     }
   });
 }
 
-// Usar store em componentes
+// Use store in components
 component Header {
-  // Injetar store
+  // Inject store
   inject store: AppStore;
   
   render {
-    container {
-      if (store.isLoggedIn) {
-        text "Bem-vindo, " + store.user.name;
-        button "Sair" {
-          onClick: store.logout;
-        }
-      } else {
-        button "Entrar" {
-          onClick: () => store.login(credentials);
-        }
-      }
-    }
+    <container>
+      {store.isLoggedIn ? (
+        <>
+          <text>Welcome, {store.user.name}</text>
+          <button onClick={store.logout}>Logout</button>
+        </>
+      ) : (
+        <button onClick={() => store.login(credentials)}>Login</button>
+      )}
+    </container>
   }
 }
 ```
 
-## Banco de Dados Nativo
+## Native Database
 
-### Modelos e Relacionamentos
+### Models and Relationships
 
 ```zyra
-// Definir modelo
+// Define model
 model User {
-  id: uuid primary;
-  name: text;
-  email: text unique;
+  id: UUID primary;
+  name: string;
+  email: string unique;
   posts: relation<Post> one-to-many;
   roles: relation<Role> many-to-many;
   
-  // Índices
+  // Indexes
   index email;
   index [name, email];
   
-  // Validações
+  // Validations
   validate email matches /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
   validate name length >= 2;
   
@@ -381,16 +380,16 @@ model User {
     this.email = this.email.toLowerCase();
   }
   
-  // Métodos
-  function getPosts(): list<Post> {
+  // Methods
+  function getPosts(): Array<Post> {
     return this.posts.orderBy("createdAt", "desc");
   }
 }
 
 model Post {
-  id: uuid primary;
-  title: text;
-  content: text;
+  id: UUID primary;
+  title: string;
+  content: string;
   author: relation<User> many-to-one;
   tags: relation<Tag> many-to-many;
   createdAt: timestamp default now();
@@ -401,31 +400,31 @@ model Post {
 
 // Queries
 let posts = await db.Post
-  .where(post => post.author.name like "João%")
+  .where(post => post.author.name like "John%")
   .include("author", "tags")
   .orderBy("createdAt", "desc")
   .limit(10);
 ```
 
-### Migrações Automáticas
+### Automatic Migrations
 
 ```zyra
-// Migração automática baseada em modelos
+// Automatic migration based on models
 migration "AddUserVerification" {
-  // Adicionar campos
+  // Add fields
   alter User {
     add verified: boolean default false;
-    add verificationToken: text optional;
+    add verificationToken: string optional;
   }
   
-  // Dados iniciais
+  // Initial data
   seed {
-    // Criar roles
+    // Create roles
     let adminRole = await db.Role.create({
       name: "admin"
     });
     
-    // Criar usuário admin
+    // Create admin user
     let admin = await db.User.create({
       name: "Admin",
       email: "admin@example.com",
@@ -435,29 +434,29 @@ migration "AddUserVerification" {
 }
 ```
 
-## Segurança
+## Security
 
-### Autenticação e Autorização
+### Authentication and Authorization
 
 ```zyra
-// Definir regras de autorização
+// Define authorization rules
 auth {
-  // Regras por modelo
+  // Rules by model
   model User {
-    // Regras CRUD
+    // CRUD rules
     create: isAdmin;
     read: isAuthenticated;
     update: isOwner || isAdmin;
     delete: isAdmin;
     
-    // Campos específicos
+    // Specific fields
     fields {
       email: isOwner || isAdmin;
       roles: isAdmin;
     }
   }
   
-  // Funções de autorização
+  // Authorization functions
   function isAuthenticated(): boolean {
     return !!currentUser;
   }
@@ -471,20 +470,20 @@ auth {
   }
 }
 
-// Usar em componentes
+// Use in components
 component UserProfile {
-  @requireAuth              // Requer autenticação
-  @hasRole("admin")        // Requer role específica
-  function deleteUser(id: uuid) {
+  @requireAuth              // Requires authentication
+  @hasRole("admin")        // Requires specific role
+  function deleteUser(id: UUID) {
     await db.User.delete(id);
   }
 }
 ```
 
-### Validação e Sanitização
+### Validation and Sanitization
 
 ```zyra
-// Validação de dados
+// Data validation
 validator UserInput {
   name: {
     required: true,
@@ -503,52 +502,139 @@ validator UserInput {
   }
 }
 
-// Usar validador
+// Use validator
 component RegisterForm {
   async function register(data) {
-    // Validar dados
+    // Validate data
     let result = await validate(data, UserInput);
     
     if (result.valid) {
-      // Criar usuário
+      // Create user
       await db.User.create(data);
     } else {
-      // Mostrar erros
+      // Show errors
       showErrors(result.errors);
     }
   }
 }
 ```
 
-## Testes
+## Advanced UI Components
 
-### Testes Unitários e de Integração
+### Data Visualization
 
 ```zyra
-// Teste de componente
+component Dashboard {
+  // Data for charts
+  let salesData = [
+    { month: "Jan", value: 1000 },
+    { month: "Feb", value: 1500 },
+    { month: "Mar", value: 1200 },
+    // ...
+  ];
+
+  render {
+    <container>
+      <Chart 
+        type="line"
+        data={salesData}
+        x="month"
+        y="value"
+        title="Monthly Sales"
+        tooltip={{
+          format: "$ {value}"
+        }}
+        animations={{
+          duration: 500,
+          easing: "ease-out"
+        }}
+      />
+      
+      <DataTable
+        data={salesData}
+        columns={[
+          { field: "month", header: "Month" },
+          { field: "value", header: "Sales", format: "currency" }
+        ]}
+        pagination={{
+          pageSize: 10,
+          pageSizeOptions: [5, 10, 20]
+        }}
+        sortable={true}
+        filterable={true}
+      />
+    </container>
+  }
+}
+```
+
+### Advanced Interactions
+
+```zyra
+component DragAndDrop {
+  state items = [
+    { id: 1, text: "Item 1" },
+    { id: 2, text: "Item 2" },
+    { id: 3, text: "Item 3" }
+  ];
+  
+  function handleDrop(result) {
+    // Reorder items
+    const { source, destination } = result;
+    if (!destination) return;
+    
+    const newItems = [...items];
+    const [removed] = newItems.splice(source.index, 1);
+    newItems.splice(destination.index, 0, removed);
+    
+    this.items = newItems;
+  }
+  
+  render {
+    <DragDropContext onDrop={handleDrop}>
+      <Droppable id="main-list">
+        {items.map((item, index) => (
+          <Draggable key={item.id} id={item.id} index={index}>
+            <card>
+              <text>{item.text}</text>
+            </card>
+          </Draggable>
+        ))}
+      </Droppable>
+    </DragDropContext>
+  }
+}
+```
+
+## Tests
+
+### Unit and Integration Tests
+
+```zyra
+// Component test
 test "LoginForm" {
-  // Renderizar componente
+  // Render component
   let form = render(LoginForm);
   
-  // Simular interação
+  // Simulate interaction
   form.input("email").type("test@example.com");
   form.input("password").type("password123");
-  form.button("Entrar").click();
+  form.button("Login").click();
   
-  // Verificar resultado
-  expect(form).toHaveText("Bem-vindo");
+  // Verify result
+  expect(form).toHaveText("Welcome");
   expect(store.user).not.toBeNull();
 }
 
-// Teste de API
+// API test
 test "UserAPI" {
-  // Configurar dados de teste
+  // Set up test data
   let user = await db.User.create({
     name: "Test User",
     email: "test@example.com"
   });
   
-  // Testar endpoint
+  // Test endpoint
   let response = await api.get("/users/" + user.id);
   
   expect(response.status).toBe(200);
@@ -556,14 +642,14 @@ test "UserAPI" {
 }
 ```
 
-## Otimizações de Performance
+## Performance Optimizations
 
-### Compilação Otimizada
+### Optimized Compilation
 
 ```zyra
-// Configurações de build
+// Build configurations
 build {
-  // Otimizações
+  // Optimizations
   optimizations {
     minify: true,
     treeShaking: true,
@@ -584,27 +670,198 @@ build {
 }
 ```
 
-### Renderização Eficiente
+### Efficient Rendering
 
 ```zyra
 component DataGrid {
-  // Virtualização para grandes listas
+  // Virtualization for large lists
   @virtualize
   render {
-    list {
-      for (item in items) {
-        // Só renderiza itens visíveis
-        listItem {
-          // Memoização de componente pesado
-          @memo
-          ComplexItem {
-            data: item
-          }
-        }
-      }
+    <list>
+      {items.map(item => (
+        // Only renders visible items
+        <listItem>
+          // Memoization of heavy component
+          <ComplexItem data={item} @memo />
+        </listItem>
+      ))}
+    </list>
+  }
+}
+```
+
+## Deployment and Infrastructure
+
+### Serverless Functions
+
+```zyra
+// Define a serverless function
+serverless function processPayment(data) {
+  // Process payment logic
+  const { amount, cardToken, customerId } = data;
+  
+  // Call payment gateway
+  const result = await paymentGateway.charge({
+    amount,
+    source: cardToken,
+    customer: customerId
+  });
+  
+  return {
+    success: result.status === 'succeeded',
+    transactionId: result.id
+  };
+}
+
+// Use serverless function
+component Checkout {
+  async function pay() {
+    const result = await processPayment({
+      amount: cart.total,
+      cardToken: cardDetails.token,
+      customerId: user.id
+    });
+    
+    if (result.success) {
+      showSuccessMessage();
+      navigateTo('/thank-you');
+    } else {
+      showErrorMessage();
     }
   }
 }
 ```
 
-Estas são apenas algumas das características avançadas da Zyra. A linguagem continua em desenvolvimento ativo e novas funcionalidades são adicionadas regularmente. 
+### Containers and Scaling
+
+```zyra
+// Define deployment configuration
+deploy {
+  // Container configuration
+  container {
+    base: "node:18-alpine",
+    env: {
+      NODE_ENV: "production",
+      DATABASE_URL: "$DATABASE_URL"
+    },
+    healthCheck: "/health",
+    memory: "512Mi",
+    cpu: "0.5"
+  }
+  
+  // Scaling configuration
+  scaling {
+    min: 2,
+    max: 10,
+    targetCPU: 70,
+    cooldown: 60
+  }
+  
+  // Database
+  database {
+    type: "postgres",
+    version: "15",
+    replicas: 2
+  }
+  
+  // Caching
+  cache {
+    type: "redis",
+    version: "7"
+  }
+}
+```
+
+## AI Features
+
+### AI Assistants
+
+```zyra
+// Define an AI assistant
+assistant SupportAgent {
+  // Configure the AI
+  config {
+    model: "gpt-4",
+    temperature: 0.7,
+    maxTokens: 1000
+  }
+  
+  // Define capabilities
+  capabilities {
+    answerFAQs: true,
+    troubleshootErrors: true,
+    searchDocs: true
+  }
+  
+  // Knowledge base
+  knowledge {
+    source: "./docs",
+    type: "vector"
+  }
+  
+  // Functions the AI can call
+  function createTicket(issue: string, priority: string): string {
+    // Create support ticket in system
+    return ticketSystem.create({
+      issue,
+      priority,
+      createdBy: "ai-assistant"
+    });
+  }
+}
+
+// Use the assistant
+component Support {
+  state messages = [];
+  
+  async function handleUserMessage(text) {
+    // Add user message to chat
+    messages.push({ role: 'user', content: text });
+    
+    // Get AI response
+    const response = await SupportAgent.respond(text, {
+      history: messages,
+      user: currentUser
+    });
+    
+    // Add AI response to chat
+    messages.push({ role: 'assistant', content: response.text });
+    
+    // If AI created a ticket, notify user
+    if (response.actions.createTicket) {
+      notify(`Ticket created: ${response.actions.createTicket}`);
+    }
+  }
+}
+```
+
+### AI-Enhanced Development
+
+```zyra
+// Generate UI components with AI
+@ai.generate("Create a product card component with image, title, price and add to cart button")
+component ProductCard {
+  // AI will suggest implementation
+}
+
+// AI code suggestions
+function calculateTotal(items) {
+  // @ai.suggest("Calculate the total price with tax")
+  
+  // AI will suggest implementation based on the comment
+}
+
+// Data analysis with AI
+model SalesData {
+  // Define data fields
+  // ...
+  
+  // AI-powered analytics
+  @ai.analyze
+  function predictTrends(timeRange: string): Array<Prediction> {
+    // AI will analyze sales data and predict trends
+  }
+}
+```
+
+These are just some of the advanced features of Zyra. The language is under active development and new features are added regularly. 

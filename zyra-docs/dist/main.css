@@ -1,0 +1,185 @@
+/**
+ * Zyra Documentation Site Styles
+ */
+
+/* Custom Classes */
+.code-example pre code {
+  display: block;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+.feature-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.feature-card h3 {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--text-color);
+  opacity: 0.9;
+}
+
+.example-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.example-card h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.example-card p {
+  margin-bottom: 16px;
+}
+
+/* Todo App Example Styles */
+.todo-app {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.add-todo {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.add-todo input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.add-todo button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.todo-item.completed span {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 12px;
+}
+
+.todo-item span {
+  flex: 1;
+}
+
+.todo-item button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Weather App Example Styles */
+.weather-app {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.search {
+  display: flex;
+  margin-bottom: 24px;
+}
+
+.search input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.search button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.weather-card {
+  background-color: var(--light-gray);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.temperature {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.description {
+  text-transform: capitalize;
+  opacity: 0.8;
+}
+
+.details {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.value {
+  font-weight: bold;
+} 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#1a1a1a"/>
+  
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#42a5f5" stroke-width="3"/>
+  
+  <!-- Z Path -->
+  <path d="M60 60 H140 L60 140 H140" stroke="#42a5f5" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#42a5f5" stroke-width="2" stroke-dasharray="2,3" opacity="0.7"/>
+  
+  <!-- Corner Accents -->
+  <circle cx="60" cy="60" r="4" fill="#42a5f5"/>
+  <circle cx="140" cy="60" r="4" fill="#42a5f5"/>
+  <circle cx="60" cy="140" r="4" fill="#42a5f5"/>
+  <circle cx="140" cy="140" r="4" fill="#42a5f5"/>
+  
+  <!-- Inner Accent Lines -->
+  <line x1="70" y1="100" x2="130" y2="100" stroke="#42a5f5" stroke-width="2" stroke-dasharray="1,3" opacity="0.5"/>
+  <line x1="100" y1="70" x2="100" y2="130" stroke="#42a5f5" stroke-width="2" stroke-dasharray="1,3" opacity="0.5"/>
+</svg> 

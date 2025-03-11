@@ -1,0 +1,415 @@
+// ProductCard.zy - Professional UI Component
+import { useTheme } from "../themes";
+import { useCart } from "../cart";
+import { formatCurrency } from "../utils/format";
+import { useTranslation } from "../i18n";
+import { motion } from "../animation";
+
+type ProductProps = {
+  product: Product;
+  variant: "grid" | "list" | "featured" = "grid";
+  showActions: boolean = true;
+  onView?: (product: Product) => void;
+};
+
+component ProductCard {
+  // Props with default values and types
+  props: ProductProps;
+  
+  // Access hooks
+  inject theme = useTheme();
+  inject cart = useCart();
+  inject t = useTranslation();
+  
+  // Local state
+  state isHovered: boolean = false;
+  state isAddingToCart: boolean = false;
+  state quantity: number = 1;
+  
+  // Computed values
+  computed isOnSale(): boolean {
+    return !!product.salePrice && product.salePrice < product.price;
+  }
+  
+  computed discountPercentage(): number {
+    if (!isOnSale) return 0;
+    return Math.round((1 - (product.salePrice / product.price)) * 100);
+  }
+  
+  computed currentPrice(): number {
+    return isOnSale ? product.salePrice : product.price;
+  }
+  
+  computed isInCart(): boolean {
+    return cart.items.some(item => item.product.id === product.id);
+  }
+  
+  // Event handlers
+  function handleAddToCart() {
+    this.isAddingToCart = true;
+    
+    // Add to cart with animation
+    setTimeout(() => {
+      cart.addToCart(product, quantity);
+      this.isAddingToCart = false;
+      
+      // Show success notification
+      notifications.show({
+        type: "success",
+        message: t("product.addedToCart", { name: product.name }),
+        duration: 3000
+      });
+    }, 600);
+  }
+  
+  function handleQuickView() {
+    if (onView) {
+      onView(product);
+    }
+  }
+  
+  // Lifecycle hooks
+  onMount() {
+    // Track product impressions for analytics
+    analytics.trackImpression({
+      id: product.id,
+      name: product.name,
+      category: product.category?.name,
+      price: currentPrice
+    });
+  }
+  
+  // UI rendering
+  render {
+    // Apply different layouts based on variant prop
+    const layout = {
+      grid: {
+        card: {
+          width: "100%",
+          maxWidth: "280px",
+          flexDirection: "column"
+        },
+        image: {
+          height: "200px",
+          width: "100%"
+        },
+        content: {
+          padding: "15px"
+        }
+      },
+      list: {
+        card: {
+          width: "100%",
+          flexDirection: "row"
+        },
+        image: {
+          height: "120px",
+          width: "120px"
+        },
+        content: {
+          padding: "10px 20px",
+          flex: 1
+        }
+      },
+      featured: {
+        card: {
+          width: "100%",
+          maxWidth: "500px",
+          flexDirection: "column"
+        },
+        image: {
+          height: "300px",
+          width: "100%"
+        },
+        content: {
+          padding: "20px"
+        }
+      }
+    }[variant];
+    
+    <motion.div
+      className="product-card"
+      animate={{
+        opacity: 1,
+        y: 0
+      }}
+      initial={{
+        opacity: 0,
+        y: 20
+      }}
+      transition={{
+        duration: 0.3,
+        delay: index * 0.05
+      }}
+      whileHover={{
+        y: -5,
+        boxShadow: theme.shadows.medium
+      }}
+      onHoverStart={() => this.isHovered = true}
+      onHoverEnd={() => this.isHovered = false}
+      style={{
+        ...layout.card,
+        backgroundColor: theme.colors.cardBg,
+        borderRadius: theme.radii.medium,
+        boxShadow: theme.shadows.small,
+        transition: "all 0.3s ease",
+        overflow: "hidden",
+        position: "relative"
+      }}
+    >
+      {/* Sale badge */}
+      {isOnSale && (
+        <div
+          className="product-badge"
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            backgroundColor: theme.colors.accent,
+            color: "white",
+            padding: "4px 8px",
+            borderRadius: theme.radii.small,
+            fontWeight: "bold",
+            zIndex: 1
+          }}
+        >
+          {t("product.saleTag", { discount: discountPercentage })}
+        </div>
+      )}
+      
+      {/* Product image with hover effect */}
+      <div
+        className="product-image"
+        style={{
+          ...layout.image,
+          backgroundImage: `url(${product.images[0]})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          transition: "transform 0.5s ease",
+          transform: isHovered ? "scale(1.05)" : "scale(1)"
+        }}
+      >
+        {/* Quick view button */}
+        {isHovered && showActions && (
+          <motion.button
+            className="quick-view-button"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              color: theme.colors.text,
+              border: "none",
+              borderRadius: theme.radii.medium,
+              padding: "8px 15px",
+              cursor: "pointer",
+              fontWeight: "medium",
+              zIndex: 2
+            }}
+            onClick={handleQuickView}
+          >
+            {t("product.quickView")}
+          </motion.button>
+        )}
+      </div>
+      
+      {/* Product content */}
+      <div
+        className="product-content"
+        style={{
+          ...layout.content,
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px"
+        }}
+      >
+        {/* Category */}
+        <div
+          className="product-category"
+          style={{
+            fontSize: theme.fontSizes.small,
+            color: theme.colors.textLight,
+            textTransform: "uppercase"
+          }}
+        >
+          {product.category?.name || t("product.uncategorized")}
+        </div>
+        
+        {/* Title */}
+        <h3
+          className="product-title"
+          style={{
+            fontSize: variant === "featured" ? theme.fontSizes.large : theme.fontSizes.medium,
+            fontWeight: "bold",
+            margin: 0,
+            color: theme.colors.heading,
+            lineHeight: 1.2
+          }}
+        >
+          {product.name}
+        </h3>
+        
+        {/* Price */}
+        <div className="product-price">
+          {isOnSale ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span
+                style={{
+                  fontSize: theme.fontSizes.medium,
+                  fontWeight: "bold",
+                  color: theme.colors.accent
+                }}
+              >
+                {formatCurrency(currentPrice)}
+              </span>
+              <span
+                style={{
+                  fontSize: theme.fontSizes.small,
+                  color: theme.colors.textLight,
+                  textDecoration: "line-through"
+                }}
+              >
+                {formatCurrency(product.price)}
+              </span>
+            </div>
+          ) : (
+            <span
+              style={{
+                fontSize: theme.fontSizes.medium,
+                fontWeight: "bold",
+                color: theme.colors.text
+              }}
+            >
+              {formatCurrency(product.price)}
+            </span>
+          )}
+        </div>
+        
+        {/* Description (list and featured views only) */}
+        {(variant === "list" || variant === "featured") && (
+          <p
+            className="product-description"
+            style={{
+              fontSize: theme.fontSizes.small,
+              color: theme.colors.text,
+              margin: "8px 0",
+              lineHeight: 1.5,
+              // Truncate long descriptions
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical"
+            }}
+          >
+            {product.description}
+          </p>
+        )}
+        
+        {/* Actions */}
+        {showActions && (
+          <div
+            className="product-actions"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginTop: "10px"
+            }}
+          >
+            {/* Quantity selector (only for list and featured) */}
+            {(variant === "list" || variant === "featured") && (
+              <div
+                className="quantity-selector"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px"
+                }}
+              >
+                <button
+                  onClick={() => this.quantity = Math.max(1, quantity - 1)}
+                  disabled={quantity === 1}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    border: `1px solid ${theme.colors.border}`,
+                    backgroundColor: "transparent",
+                    borderRadius: theme.radii.small,
+                    cursor: "pointer",
+                    opacity: quantity === 1 ? 0.5 : 1
+                  }}
+                >
+                  -
+                </button>
+                <span
+                  style={{
+                    width: "30px",
+                    textAlign: "center",
+                    fontSize: theme.fontSizes.small
+                  }}
+                >
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => this.quantity = quantity + 1}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    border: `1px solid ${theme.colors.border}`,
+                    backgroundColor: "transparent",
+                    borderRadius: theme.radii.small,
+                    cursor: "pointer"
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            )}
+            
+            {/* Add to cart button */}
+            <motion.button
+              className="add-to-cart-button"
+              whileTap={{ scale: 0.95 }}
+              disabled={!product.isInStock() || isAddingToCart}
+              onClick={handleAddToCart}
+              style={{
+                backgroundColor: isInCart ? theme.colors.success : theme.colors.primary,
+                color: "white",
+                border: "none",
+                borderRadius: theme.radii.medium,
+                padding: variant === "grid" ? "8px 12px" : "10px 15px",
+                cursor: "pointer",
+                fontWeight: "medium",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                width: variant === "grid" ? "100%" : "auto",
+                justifyContent: variant === "grid" ? "center" : "flex-start",
+                opacity: !product.isInStock() ? 0.6 : 1
+              }}
+            >
+              {isAddingToCart ? (
+                <Spinner size="small" color="white" />
+              ) : isInCart ? (
+                <>
+                  <Icon name="check" />
+                  {t("product.inCart")}
+                </>
+              ) : !product.isInStock() ? (
+                t("product.outOfStock")
+              ) : (
+                <>
+                  <Icon name="shopping-cart" />
+                  {t("product.addToCart")}
+                </>
+              )}
+            </motion.button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  }
+} 
